@@ -1,0 +1,38 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.sale-container {
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sale-panel {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #E6F2EC;
+}
+
+.sale-main{
+  width: 100%;
+  max-width: 1400px;
+  margin: 0;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.sale-cards{
+  display: grid;
+  justify-items: center;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 70px;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 1160px;
+}

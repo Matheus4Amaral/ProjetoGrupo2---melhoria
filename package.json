@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "scripts": {
+    "frontend": "npm run dev --prefix front-end",
+    "backend": "npm run dev --prefix back-end",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

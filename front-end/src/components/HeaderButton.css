@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.page-header-button {
+  width: 100%;
+  height: 72px;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  border-bottom: 1px solid #e9efea;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #184d3b;
+}
+
+.button-title{
+  width: 212px;
+  height: 41px;
+  border-radius: 6px;
+  background: #008155;
+  color: #FFF;
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 19.5px;
+  border: none;
+}
+
+.button{
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    padding-left: 1180px;
+}
