@@ -32,11 +32,51 @@ export const createSale = async (req, res) => {
         })
       }
 
+      // 1. Busca a quantidade de estoque atual do produto no banco de dados.
+      // O '$1' é um parâmetro que será substituído pelo valor de 'id_produto'.
+      const checkEstoque = await client.query(
+        `SELECT quantidade_estoque_atual FROM public.possui_estoque WHERE id_produto = $1`,
+        [id_produto]
+      )
+
+      // 2. Verifica se a busca não trouxe nenhum resultado (array de linhas vazio).
+      if (checkEstoque.rows.length === 0) {
+        // Desfaz a transação no banco de dados para evitar inconsistências.
+        await client.query('ROLLBACK')
+        // Retorna erro 400 (Bad Request) avisando que o produto não existe no estoque.
+        return res.status(400).json({
+          message: `Produto ${id_produto} não encontrado em nenhum estoque`
+        })
+      }
+
+      // 3. Pega o valor numérico do estoque da primeira linha retornada pela busca.
+      const quantidadeDisponivel = checkEstoque.rows[0].quantidade_estoque_atual
+
+      // 4. Verifica se o estoque disponível não dá conta da quantidade solicitada na venda.
+      if (quantidadeDisponivel < quantidade_venda) {
+        // Desfaz a transação no banco de dados pois a venda não pode prosseguir.
+        await client.query('ROLLBACK')
+        // Retorna erro 400 detalhando quanto tem disponível e quanto foi solicitado.
+        return res.status(400).json({
+          message: `Estoque insuficiente para o produto ${id_produto}. Disponível: ${quantidadeDisponivel}, solicitado: ${quantidade_venda}`
+        })
+      }
+
       await client.query(
         `INSERT INTO public.possui_venda (id_venda, id_produto, quantidade_venda)
          VALUES ($1, $2, $3)`,
         [id_venda, id_produto, quantidade_venda]
       )
+
+      // Desconta a quantidade vendida do estoque do produto
+      await client.query(
+        `UPDATE public.possui_estoque
+        SET quantidade_estoque_atual = quantidade_estoque_atual - $1
+        WHERE id_produto = $2`,
+        [quantidade_venda, id_produto]
+      )
+
+
     }
 
     if (cliente_id) {

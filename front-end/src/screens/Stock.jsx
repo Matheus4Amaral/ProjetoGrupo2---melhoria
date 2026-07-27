@@ -6,6 +6,9 @@ import CardResumo from "../components/cardResumo";
 import TabelaEstoque from "../components/TabelaEstoque";
 import ItemModal from "../components/ItemModal";
 
+import RegisterStock from "../components/RegisterStock";
+
+
 export default function Stock() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -14,6 +17,9 @@ export default function Stock() {
   const [produtos, setProdutos] = useState([]);
   const [estoqueAtual, setEstoqueAtual] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Controla a exibição do modal de cadastro de Estoque
+const [isStockModalOpen, setIsStockModalOpen] = useState(false);
 
   const handleNovoItem = () => {
     setModalMode("create");
@@ -119,8 +125,10 @@ export default function Stock() {
         <div className="stock-panel">
           <Header
             title="Estoque"
-            buttonText="Novo Item"
-            onButtonClick={handleNovoItem}
+            // Se ainda não existe estoque cadastrado, o botão vira "Cadastrar Estoque".
+            // Se já existe, o botão volta a ser "Novo Item" normalmente.
+            buttonText={estoqueAtual ? "Novo Item" : "Cadastrar Estoque"}
+            onButtonClick={estoqueAtual ? handleNovoItem : () => setIsStockModalOpen(true)}
           />
 
           <main className="stock-main">
@@ -158,6 +166,11 @@ export default function Stock() {
         onSuccess={fetchProdutosEstoque}
         mode={modalMode}
         itemSelecionado={selectedItem}
+      />
+      <RegisterStock
+        isOpen={isStockModalOpen}
+        onClose={() => setIsStockModalOpen(false)}
+        onSave={fetchProdutosEstoque}
       />
     </>
   );

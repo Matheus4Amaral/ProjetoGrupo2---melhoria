@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;          /* melhor que 15% pra sidebar fixa */
+  width: 220px;          /* melhor que 15% pra sidebar fixa */
   height: 100vh;
   overflow-y: auto;
 
@@ -11,7 +11,7 @@
   flex-direction: column;
   justify-content: space-between;
   background-color: #104f3a;
-  padding: 80px 56px;
+  padding: 80px 32px;
 }
 
 .sidebar-top {
@@ -26,7 +26,7 @@
 }
 
 .sidebar-logo {
-  width: 170px;
+  width: 150px ;
   height: auto;
   display: block;
 }
