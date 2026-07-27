@@ -116,7 +116,7 @@ JWT_SECRET=secret para o token
 Para rodar as migrations e criar as tabelas no banco de dados rode no terminal e logo em seguida adicione a senha do banco de dados:
 
 ```bash
-psql -U postgres -f backend/migration.sql
+psql -U postgres -f back-end/migration.sql
 ```
 
 OBS: Talvez dê problema no comando psql, terá que adicionar o caminho dele no PATH nas variáveis de ambiente do windows.
