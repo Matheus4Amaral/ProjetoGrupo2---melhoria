@@ -3,6 +3,7 @@ import Logo from '../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { useAlert } from "../contexts/AlertContext";
 
 export default function Login() {
 
@@ -11,6 +12,8 @@ export default function Login() {
   // function handleLogin(){
   //   navigate('/dashboard')
   // }
+
+  const showAlert = useAlert();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -37,18 +40,17 @@ export default function Login() {
       const data = await response.json()
 
       if(!response.ok) {
-        alert(`${data.message}`)
+        // showAlert(`${data.message}`)
         return;
       }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-      alert("Login realizado com sucesso!")
       navigate("/dashboard")
+      
     } catch (error){
       console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
     }
   };
 
@@ -101,7 +103,7 @@ export default function Login() {
             <div className="form-options">
               <label htmlFor="remember" className="remember-me">
                 <input type="checkbox" id="remember" />
-                <span>Manter conectado</span>
+                <span>  Manter conectado</span>
               </label>
 
               <a href='/forgot-password' className="missing-password">

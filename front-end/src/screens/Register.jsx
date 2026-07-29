@@ -2,6 +2,7 @@ import "./Register.css";
 import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { useAlert } from "../contexts/AlertContext";
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ export default function Cadastro() {
   // function handleRegister() {
   //   navigate("/dashboard");
   // }
+
+  const showAlert = useAlert();
 
   const [formData, setFormData] = useState({
     nome_usuario: "",
@@ -98,15 +101,15 @@ export default function Cadastro() {
       const data = await response.json()
 
       if(!response.ok) {
-        alert(`${data.message}`)
+        showAlert(`${data.message}`)
         return;
       }
 
-      alert("Cadastro realizado com sucesso!")
+      showAlert("Cadastro realizado com sucesso!")
       navigate("/")
     } catch (error){
       console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
+      showAlert(`Erro ao conectar com o servidor: ${error.message}` )
     }
   };
 

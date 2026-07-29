@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import "./TabelaEstoque.css";
+import { useAlert } from "../contexts/AlertContext";
 
 export default function TabelaEstoque({
   produtos = [],
@@ -13,6 +14,7 @@ export default function TabelaEstoque({
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const showAlert = useAlert();
 
   const formatarMoeda = (valor) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -61,7 +63,7 @@ export default function TabelaEstoque({
 
   async function handleDelete(item) {
     if (!estoqueAtual?.id_estoque) {
-      alert("Estoque não identificado para exclusão.");
+      showAlert("Estoque não identificado para exclusão.");
       return;
     }
 
@@ -90,14 +92,14 @@ export default function TabelaEstoque({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao excluir produto do estoque.");
+        showAlert(data.message || "Erro ao excluir produto do estoque.");
         return;
       }
 
-      alert("Produto removido do estoque com sucesso.");
+      showAlert("Produto removido do estoque com sucesso.");
       await onReload();
     } catch (error) {
-      alert(`Erro ao excluir produto: ${error.message}`);
+      showAlert(`Erro ao excluir produto: ${error.message}`);
     } finally {
       setDeletingId(null);
     }

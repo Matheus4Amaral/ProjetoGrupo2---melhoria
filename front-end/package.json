@@ -8,8 +8,8 @@
   "type": "module",
   "main": "eslint.config.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --port 3002",
+    "build": "vite build",         
     "lint": "eslint .",
     "preview": "vite preview"
   },

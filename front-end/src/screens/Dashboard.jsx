@@ -11,9 +11,11 @@ import SalesLogo from  '../assets/sales-icon-dashboard.png'
 import SupplierLogo from '../assets/supplier-icon-dashboard.png'
 import LowStockModal from '../components/LowStockModal';
 import ReplacementModal from '../components/ReplacementModal';
+import { useAlert } from '../contexts/AlertContext';
 
 
 export default function Dashboard(){
+    const showAlert = useAlert();
 
     const [openLowStockModal, setOpenLowStockModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -53,15 +55,15 @@ export default function Dashboard(){
             const data = await response.json()
 
             if(!response.ok) {
-                alert(`${data.message}`)
+                showAlert(`${data.message}`)
                 return;
             }
 
-            alert("Reposição realizada com sucesso")
+            showAlert("Reposição realizada com sucesso")
 
             setOpenReplacementModal(false)
         } catch(error){
-            alert(`Erro ao conectar com o servidor ${error.message}`)
+            showAlert(`Erro ao conectar com o servidor ${error.message}`)
         } finally{
             setLoadingReplacement(false)
         }
@@ -92,7 +94,7 @@ export default function Dashboard(){
             const data = await response.json()
 
             if(!response.ok){
-                alert(`${data.message}`)
+                showAlert(`${data.message}`)
             }
             setDashboardData({
                 totalProductsStock: data.totalProductsStock ?? 0,
@@ -105,7 +107,7 @@ export default function Dashboard(){
                 recentSuppliers: data.recentSuppliers ?? 0
             });
         } catch(error){
-            alert(`Erro ao carregar dashboard ${error.message}`)
+            showAlert(`Erro ao carregar dashboard ${error.message}`)
         } finally{
             setLoadingDashboard(false)
         }

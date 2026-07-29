@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./ReplacementModal.css";
+import { useAlert } from "../contexts/AlertContext";
 
 export default function ReplacementModal({
   openModal,
@@ -9,6 +10,7 @@ export default function ReplacementModal({
   loadingReplacement
 }) {
   const [quantidade, setQuantidade] = useState("");
+  const showAlert = useAlert();
 
   if (!openModal || !product) return null;
 
@@ -16,7 +18,7 @@ export default function ReplacementModal({
     e.preventDefault();
 
     if (!quantidade || Number(quantidade) <= 0) {
-      alert("Informe uma quantidade válida");
+      showAlert("Informe uma quantidade válida");
       return;
     }
 

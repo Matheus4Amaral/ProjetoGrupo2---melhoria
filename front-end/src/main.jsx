@@ -11,6 +11,8 @@ import Sale from './screens/Sale.jsx'
 import Profile from './screens/Profile.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import { AlertProvider } from './contexts/AlertContext.jsx'
+import DevSupplierPreview from './screens/DevSupplierPreview.jsx'
 
 const router = createBrowserRouter([
   {
@@ -56,11 +58,17 @@ const router = createBrowserRouter([
   {
     path: '/forgot-password',
     element: <ForgotPassword/>
+  },
+  {
+    path: '/dev-supplier',
+    element: <DevSupplierPreview />
   }
 ])
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AlertProvider>
+      <RouterProvider router={router} />
+    </AlertProvider>
   </StrictMode>,
 )

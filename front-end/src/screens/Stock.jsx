@@ -7,9 +7,11 @@ import TabelaEstoque from "../components/TabelaEstoque";
 import ItemModal from "../components/ItemModal";
 
 import RegisterStock from "../components/RegisterStock";
+import { useAlert } from "../contexts/AlertContext";
 
 
 export default function Stock() {
+  const showAlert = useAlert();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -49,7 +51,7 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado");
+      showAlert("Usuário não autenticado");
       return;
     }
 
@@ -67,7 +69,7 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
       const dataEstoques = await responseEstoques.json();
 
       if (!responseEstoques.ok) {
-        alert(dataEstoques.message || "Erro ao carregar estoques");
+        showAlert(dataEstoques.message || "Erro ao carregar estoques");
         return;
       }
 
@@ -98,13 +100,13 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
       const dataProdutos = await responseProdutos.json();
 
       if (!responseProdutos.ok) {
-        alert(dataProdutos.message || "Erro ao carregar produtos");
+        showAlert(dataProdutos.message || "Erro ao carregar produtos");
         return;
       }
 
       setProdutos(Array.isArray(dataProdutos.produtos) ? dataProdutos.produtos : []);
     } catch (error) {
-      alert(`Erro ao carregar estoque: ${error.message}`);
+      showAlert(`Erro ao carregar estoque: ${error.message}`);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import "./ItemModal.css";
 import RegisterSupplier from "./RegisterSupplier";
+import { useAlert } from "../contexts/AlertContext";
+import { IMaskInput } from "react-imask";
 
 export default function ItemModal({
   isOpen,
@@ -29,29 +31,42 @@ export default function ItemModal({
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
   const [openSupplierModal, setOpenSupplierModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const showAlert = useAlert();
 
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
 
+  const converterMoeda = (valor) => {
+    if (!valor) return 0;
+
+    return Number(
+      valor
+        .replace("R$", "")
+        .trim()
+        .replace(/\./g, "")
+        .replace(",", ".")
+    );
+  };
+
   useEffect(() => {
     if (!isOpen) {
-        setFormData(initialFormData);
-        setFornecedores([]);
-        setFornecedorSelecionado(null);
-        setMostrarSugestoes(false);
-        setSaving(false);
-        setOpenSupplierModal(false);
-        return;
+      setFormData(initialFormData);
+      setFornecedores([]);
+      setFornecedorSelecionado(null);
+      setMostrarSugestoes(false);
+      setSaving(false);
+      setOpenSupplierModal(false);
+      return;
     }
 
     if ((isEditMode || isViewMode) && itemSelecionado) {
-        const nomeFornecedor =
+      const nomeFornecedor =
         itemSelecionado.nome_fornecedor ||
         itemSelecionado.fornecedor_nome ||
         "";
 
-        setFormData({
+      setFormData({
         nome_produto: itemSelecionado.nome_produto || "",
         categoria: itemSelecionado.categoria || "",
         quantidade_inicial: itemSelecionado.quantidade_estoque_total ?? "",
@@ -62,21 +77,21 @@ export default function ItemModal({
         peso: itemSelecionado.peso ?? "",
         volume: itemSelecionado.volume ?? "",
         lote: itemSelecionado.lote ?? ""
-        });
+      });
 
-        if (itemSelecionado.id_fornecedor || nomeFornecedor) {
+      if (itemSelecionado.id_fornecedor || nomeFornecedor) {
         setFornecedorSelecionado({
-            id_fornecedor: itemSelecionado.id_fornecedor ?? null,
-            nome_fornecedor: nomeFornecedor
+          id_fornecedor: itemSelecionado.id_fornecedor ?? null,
+          nome_fornecedor: nomeFornecedor
         });
-        } else {
+      } else {
         setFornecedorSelecionado(null);
-        }
+      }
     } else {
-        setFormData(initialFormData);
-        setFornecedorSelecionado(null);
+      setFormData(initialFormData);
+      setFornecedorSelecionado(null);
     }
-    }, [isOpen, mode, itemSelecionado]);
+  }, [isOpen, mode, itemSelecionado]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -87,53 +102,71 @@ export default function ItemModal({
     }));
   };
 
-  const handleFornecedorChange = async (e) => {
-    const value = e.target.value;
+  const fetchFornecedores = async (search = "") => {
+    const token = localStorage.getItem("token");
+    if (!token) return [];
+    
+    try {
+      const url = search
+        ? `http://localhost:3001/api/supplier?search=${encodeURIComponent(search)}`
+        : `http://localhost:3001/api/supplier`;
+        
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) return [];
+      
+      return Array.isArray(data) ? data : data.fornecedores || [];
+    } catch (error) {
+      console.error("Erro ao buscar fornecedores:", error);
+      return [];
+    }
+  };
 
-    setFormData((prev) => ({
-      ...prev,
-      fornecedor: value
-    }));
+  const buscarFornecedores = async () => {
+    if (isViewMode) return;
+    const data = await fetchFornecedores();
+    setFornecedores(data);
+    setMostrarSugestoes(true);
+  };
 
-    setFornecedorSelecionado(null);
+  const handleFornecedorFocus = async () => {
+    if (isViewMode) return;
 
-    if (value.trim().length < 2) {
-      setMostrarSugestoes(false);
+    if (fornecedores.length > 0) {
+      setMostrarSugestoes(true);
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const data = await fetchFornecedores();
+    setFornecedores(data.slice(0, 5));
+    setMostrarSugestoes(true);
+  };
 
-    try {
-      const response = await fetch(
-        `http://localhost:3001/api/supplier?search=${encodeURIComponent(value)}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
+  const handleFornecedorChange = async (e) => {
+    const valor = e.target.value;
 
-      const data = await response.json();
+    setFormData({
+      ...formData,
+      fornecedor: valor
+    });
 
-      if (!response.ok) {
-        setFornecedores([]);
-        setMostrarSugestoes(false);
-        return;
-      }
-
-      const lista = Array.isArray(data) ? data : data.fornecedores || [];
-
-      setFornecedores(lista);
-      setMostrarSugestoes(lista.length > 0);
-    } catch (error) {
-      console.error("Erro ao buscar fornecedores:", error);
-      setFornecedores([]);
-      setMostrarSugestoes(false);
+    if (!valor.trim()) {
+      setMostrarSugestoes(true);
+      const data = await fetchFornecedores();
+      setFornecedores(data.slice(0, 5));
+      return;
     }
+
+    const data = await fetchFornecedores(valor);
+    setFornecedores(data);
+    setMostrarSugestoes(data.length > 0);
   };
 
   const handleSelecionarFornecedor = (fornecedor) => {
@@ -155,22 +188,22 @@ export default function ItemModal({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      showAlert("Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_produto.trim()) {
-      alert("Informe o nome do produto.");
+      showAlert("Informe o nome do produto.");
       return;
     }
 
     if (!formData.categoria.trim()) {
-      alert("Informe a categoria.");
+      showAlert("Informe a categoria.");
       return;
     }
 
     if (!estoqueAtual?.id_estoque && isCreateMode) {
-      alert("Nenhum estoque encontrado.");
+      showAlert("Nenhum estoque encontrado.");
       return;
     }
 
@@ -179,8 +212,8 @@ export default function ItemModal({
       categoria: formData.categoria.trim(),
       quantidade_inicial:
         formData.quantidade_inicial === "" ? 0 : Number(formData.quantidade_inicial),
-      preco_compra: formData.preco_compra === "" ? 0 : Number(formData.preco_compra),
-      preco_venda: formData.preco_venda === "" ? 0 : Number(formData.preco_venda),
+      preco_compra: converterMoeda(formData.preco_compra),
+      preco_venda: converterMoeda(formData.preco_venda),
       descricao: formData.descricao.trim() || null,
       peso: formData.peso === "" ? null : Number(formData.peso),
       volume: formData.volume === "" ? null : Number(formData.volume),
@@ -213,14 +246,14 @@ export default function ItemModal({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
+        showAlert(
           data.message ||
-            (isEditMode ? "Erro ao atualizar produto." : "Erro ao cadastrar produto.")
+          (isEditMode ? "Erro ao atualizar produto." : "Erro ao cadastrar produto.")
         );
         return;
       }
 
-      alert(isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
+      showAlert(isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
 
       if (onSuccess) {
         await onSuccess();
@@ -228,7 +261,7 @@ export default function ItemModal({
 
       onClose();
     } catch (error) {
-      alert(`Erro ao salvar item: ${error.message}`);
+      showAlert(`Erro ao salvar item: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -245,8 +278,8 @@ export default function ItemModal({
               {isCreateMode
                 ? "Cadastrar Novo Item"
                 : isEditMode
-                ? "Editar Item"
-                : "Visualizar Item"}
+                  ? "Editar Item"
+                  : "Visualizar Item"}
             </h2>
 
             <button className="close-btn" onClick={onClose} type="button">
@@ -264,6 +297,7 @@ export default function ItemModal({
                   value={formData.nome_produto}
                   onChange={handleChange}
                   disabled={isViewMode}
+                  placeholder="Ex.: Martelo"
                 />
               </div>
 
@@ -292,6 +326,7 @@ export default function ItemModal({
                   onChange={handleChange}
                   min="0"
                   disabled={isViewMode}
+                  placeholder="Ex.: 10"
                 />
               </div>
 
@@ -303,11 +338,12 @@ export default function ItemModal({
                   value={formData.lote}
                   onChange={handleChange}
                   disabled={isViewMode}
+                  placeholder="Ex.: 123"
                 />
               </div>
 
               <div className="form-group">
-                <label>Peso</label>
+                <label>Peso (Kg)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -315,6 +351,7 @@ export default function ItemModal({
                   value={formData.peso}
                   onChange={handleChange}
                   disabled={isViewMode}
+                  placeholder="Ex.: 1.5"
                 />
               </div>
 
@@ -327,30 +364,63 @@ export default function ItemModal({
                   value={formData.volume}
                   onChange={handleChange}
                   disabled={isViewMode}
+                  placeholder="Ex.: 1.5 (m³)"
                 />
               </div>
 
               <div className="form-group">
-                <label>Preço de Compra</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="preco_compra"
+                <label>Preço de Compra (R$)</label>
+
+                <IMaskInput
+                  mask="R$ num"
+                  blocks={{
+                    num: {
+                      mask: Number,
+                      scale: 2,
+                      thousandsSeparator: ".",
+                      radix: ",",
+                      mapToRadix: ["."],
+                      normalizeZeros: true,
+                      padFractionalZeros: true,
+                    },
+                  }}
                   value={formData.preco_compra}
-                  onChange={handleChange}
+                  placeholder="R$ 0,00"
                   disabled={isViewMode}
+                  onAccept={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      preco_compra: value,
+                    }))
+                  }
                 />
               </div>
 
               <div className="form-group">
-                <label>Preço de Venda</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="preco_venda"
+                <label>Preço de Venda (R$)</label>
+
+                <IMaskInput
+                  mask="R$ num"
+                  blocks={{
+                    num: {
+                      mask: Number,
+                      scale: 2,
+                      thousandsSeparator: ".",
+                      radix: ",",
+                      mapToRadix: ["."],
+                      normalizeZeros: true,
+                      padFractionalZeros: true,
+                    },
+                  }}
                   value={formData.preco_venda}
-                  onChange={handleChange}
+                  placeholder="R$ 0,00"
                   disabled={isViewMode}
+                  onAccept={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      preco_venda: value,
+                    }))
+                  }
                 />
               </div>
 
@@ -362,6 +432,8 @@ export default function ItemModal({
                     name="fornecedor"
                     value={formData.fornecedor}
                     onChange={handleFornecedorChange}
+                    onFocus={handleFornecedorFocus}
+                    onBlur={() => setTimeout(() => setMostrarSugestoes(false), 200)}
                     placeholder="Digite o nome do fornecedor"
                     autoComplete="off"
                     disabled={isViewMode}
@@ -402,6 +474,7 @@ export default function ItemModal({
                   onChange={handleChange}
                   rows="4"
                   disabled={isViewMode}
+                  placeholder="Ex.: Martelo com cabo de madeira, perfeito para uso em obras..."
                 />
               </div>
             </div>
@@ -427,8 +500,8 @@ export default function ItemModal({
                       ? "Atualizando..."
                       : "Salvando..."
                     : isEditMode
-                    ? "Atualizar Item"
-                    : "Salvar Item"}
+                      ? "Atualizar Item"
+                      : "Salvar Item"}
                 </button>
               )}
             </div>

@@ -59,7 +59,7 @@
 
 .supplier-form-grid {
   display: grid;
-  grid-template-columns: 1fr 120px;
+  grid-template-columns: 1fr 1fr;
   gap: 18px 16px;
 }
 
@@ -144,6 +144,12 @@
 
 .btn-confirmar:hover {
   background: #047857;
+}
+
+input::placeholder,
+select::placeholder {
+  color: #999;
+  font-style: italic;
 }
 
 @media (max-width: 640px) {

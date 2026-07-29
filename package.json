@@ -8,8 +8,10 @@
     "dev": "concurrently \"npm run backend\" \"npm run frontend\""
   },
   "dependencies": {
+    "@rolldown/binding-win32-x64-msvc": "^1.2.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "react-imask": "^7.6.1"
   }
 }

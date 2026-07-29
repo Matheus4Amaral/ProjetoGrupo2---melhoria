@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./RegisterStock.css";
+import { useAlert } from "../contexts/AlertContext";
 
 // Componente de modal para cadastrar um novo Estoque (depósito).
 export default function RegisterStock({ isOpen, onClose, onSave }) {
@@ -9,6 +10,7 @@ export default function RegisterStock({ isOpen, onClose, onSave }) {
   // Estado que indica se a requisição de salvar está em andamento
   // (usado para desabilitar os botões e trocar o texto do botão de salvar)
   const [saving, setSaving] = useState(false);
+  const showAlert = useAlert();
 
   // Sempre que o modal for fechado (isOpen vira false),
   useEffect(() => {
@@ -26,13 +28,13 @@ export default function RegisterStock({ isOpen, onClose, onSave }) {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      showAlert("Usuário não autenticado.");
       return;
     }
 
     // Validação simples: não deixa enviar descrição vazia
     if (!descricao.trim()) {
-      alert("Informe uma descrição para o estoque.");
+      showAlert("Informe uma descrição para o estoque.");
       return;
     }
 
@@ -53,11 +55,11 @@ export default function RegisterStock({ isOpen, onClose, onSave }) {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao cadastrar estoque.");
+        showAlert(data.message || "Erro ao cadastrar estoque.");
         return;
       }
 
-      alert("Estoque cadastrado com sucesso.");
+      showAlert("Estoque cadastrado com sucesso.");
 
 
       if (onSave) {
@@ -67,7 +69,7 @@ export default function RegisterStock({ isOpen, onClose, onSave }) {
       onClose(); // fecha o modal após salvar com sucesso
     } catch (error) {
       // Erro de rede, servidor fora do ar, etc.
-      alert(`Erro ao cadastrar estoque: ${error.message}`);
+      showAlert(`Erro ao cadastrar estoque: ${error.message}`);
     } finally {
       setSaving(false); // libera os botões independente de sucesso ou erro
     }

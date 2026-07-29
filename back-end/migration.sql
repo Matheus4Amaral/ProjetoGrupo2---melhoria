@@ -1,6 +1,9 @@
 CREATE SCHEMA IF NOT EXISTS public;
 SET search_path TO public;
 
+CREATE DATABASE dbStock;
+
+
 -- cliente definição
 
 -- Drop table

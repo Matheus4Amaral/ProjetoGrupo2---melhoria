@@ -244,6 +244,30 @@ textarea {
   color: #0f8a5f;
 }
 
+.fornecedor-dropdown {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.fornecedor-option {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: white;
+  border: none;
+  cursor: pointer;
+}
+
+.fornecedor-option:hover {
+  background: #f3f3f3;
+}
+
 @media (max-width: 640px) {
   .item-modal-content {
     width: 95%;
