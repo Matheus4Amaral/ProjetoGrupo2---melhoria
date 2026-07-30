@@ -22,14 +22,15 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  width: 80%;
-  margin: 20px auto;
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto 20px 30px; /* Alinhado levemente mais à esquerda conforme solicitado */
 }
 
 .dashboard-cards {
   display: flex;
   justify-content: space-between;
-  gap: 30px;
+  gap: 20px;
   text-align: left;
   width: 100%;
   height: auto;
@@ -51,14 +52,17 @@
   color: #5A7A6A;
 }
 
+/* Padronização de borda e sombra sutil em todos os blocos */
 .total-products,
 .total-sales,
 .stock-card,
 .supplier-card {
   flex: 1 1 250px;
-  padding: 20px;
+  padding: 24px;
   background-color: #ffffff;
-  border-radius: 31px;
+  border-radius: 12px; /* Padronizado para 12px */
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .stock-card {
@@ -70,8 +74,10 @@
   flex-direction: column;
   width: 100%;
   background-color: #ffffff;
-  border-radius: 31px;
+  border-radius: 12px; /* Padronizado para 12px */
+  border: 1px solid #e5e7eb;
   padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .chart-header,
@@ -115,7 +121,7 @@
 
 hr {
   margin: 10px 0;
-  background: rgba(0, 0, 0, 0.30);
+  background: rgba(0, 0, 0, 0.15);
   border: none;
   height: 1px;
 }
@@ -124,13 +130,13 @@ hr {
 .supplier-icon {
   background: rgba(0, 129, 85, 0.09);
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .sales-icon {
   background: rgba(212, 24, 61, 0.08);
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .stock-list {
@@ -148,10 +154,11 @@ hr {
 }
 
 .list-header {
-  background: rgba(230, 242, 236, 0.50);
+  background: #f9fafb;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   margin-bottom: 8px;
+  border: 1px solid #f3f4f6;
 }
 
 .list-header span {
@@ -167,7 +174,7 @@ hr {
 
 .list-row {
   padding: 14px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .product-info {
@@ -199,7 +206,7 @@ hr {
 
 .stock-bar {
   width: 120px;
-  height: 4px;
+  height: 6px;
   background: #E5E7EB;
   border-radius: 999px;
   overflow: hidden;
@@ -234,10 +241,10 @@ hr {
 
 .replace-btn {
   justify-self: center;
-  background-color: #0b7a53;
+  background-color: #10b981;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   min-width: 92px;
   height: 34px;
   padding: 0 14px;
@@ -248,7 +255,7 @@ hr {
 }
 
 .replace-btn:hover {
-  background-color: #096746;
+  background-color: #059669;
 }
 
 .replace-btn:active {
@@ -257,19 +264,24 @@ hr {
 
 .see-more-btn {
   display: block;
-  margin: 10px 0 0 auto;
+  margin: 12px 0 0 auto;
   padding: 0;
   background: none;
   border: none;
-  color: #5A7A6A;
-  font-size: 12px;
-  font-weight: 500;
+  color: #047857;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+}
+
+.see-more-btn:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 1024px) {
   .dashboard-informations {
     width: 92%;
+    margin: 20px auto;
   }
 
   .dashboard-panel {

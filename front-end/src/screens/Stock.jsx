@@ -14,6 +14,7 @@ export default function Stock() {
   const [produtos, setProdutos] = useState([]);
   const [estoqueAtual, setEstoqueAtual] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleNovoItem = () => {
     setModalMode("create");
@@ -39,19 +40,23 @@ export default function Stock() {
     setModalMode("create");
   };
 
-  async function fetchProdutosEstoque() {
+  async function fetchProdutosEstoque(signal) {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado");
+      setErrorMessage("Usuário não autenticado.");
+      setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
+      setErrorMessage(null);
 
+      // 1. Busca Estoque (passando o signal para poder cancelar se o usuário mudar de página)
       const responseEstoques = await fetch("http://localhost:3001/api/stock", {
         method: "GET",
+        signal, // AbortSignal
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -61,7 +66,7 @@ export default function Stock() {
       const dataEstoques = await responseEstoques.json();
 
       if (!responseEstoques.ok) {
-        alert(dataEstoques.message || "Erro ao carregar estoques");
+        setErrorMessage(dataEstoques.message || "Erro ao carregar estoques.");
         return;
       }
 
@@ -78,10 +83,12 @@ export default function Stock() {
       const estoque = listaEstoques[0];
       setEstoqueAtual(estoque);
 
+      // 2. Busca Produtos do Estoque
       const responseProdutos = await fetch(
         `http://localhost:3001/api/stock/${estoque.id_estoque}/produtos`,
         {
           method: "GET",
+          signal, // AbortSignal
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
@@ -92,20 +99,32 @@ export default function Stock() {
       const dataProdutos = await responseProdutos.json();
 
       if (!responseProdutos.ok) {
-        alert(dataProdutos.message || "Erro ao carregar produtos");
+        setErrorMessage(dataProdutos.message || "Erro ao carregar produtos.");
         return;
       }
 
       setProdutos(Array.isArray(dataProdutos.produtos) ? dataProdutos.produtos : []);
     } catch (error) {
-      alert(`Erro ao carregar estoque: ${error.message}`);
+      // Ignora erro se for apenas o cancelamento intencional da requisição ao mudar de rota
+      if (error.name !== "AbortError") {
+        console.error("Erro no fetch:", error);
+        setErrorMessage(`Erro ao carregar estoque: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchProdutosEstoque();
+    // Controller para cancelar a requisição se o usuário sair da página antes de carregar
+    const controller = new AbortController();
+
+    fetchProdutosEstoque(controller.signal);
+
+    // Função de limpeza executada quando o componente é desmontado
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const totalProdutos = produtos.length;
@@ -124,6 +143,12 @@ export default function Stock() {
           />
 
           <main className="stock-main">
+            {errorMessage && (
+              <div style={{ color: "red", padding: "10px", marginBottom: "15px", backgroundColor: "#ffe6e6", borderRadius: "5px" }}>
+                {errorMessage}
+              </div>
+            )}
+
             <div className="stock-cards">
               <CardResumo
                 title="Produtos Cadastrados"
@@ -143,7 +168,7 @@ export default function Stock() {
               produtos={produtos}
               loading={loading}
               estoqueAtual={estoqueAtual}
-              onReload={fetchProdutosEstoque}
+              onReload={() => fetchProdutosEstoque()}
               onViewItem={handleVisualizarItem}
               onEditItem={handleEditarItem}
             />
@@ -155,7 +180,7 @@ export default function Stock() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         estoqueAtual={estoqueAtual}
-        onSuccess={fetchProdutosEstoque}
+        onSuccess={() => fetchProdutosEstoque()}
         mode={modalMode}
         itemSelecionado={selectedItem}
       />

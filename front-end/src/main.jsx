@@ -11,7 +11,7 @@ import Sale from './screens/Sale.jsx'
 import Profile from './screens/Profile.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
-
+import Fornecedor from './screens/Fornecedor.jsx'
 const router = createBrowserRouter([
   {
     path: '/',
@@ -50,6 +50,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Profile />
+      </ProtectedRoute>
+    ) 
+  },
+  {
+    path: '/fornecedor', 
+    element: (
+      <ProtectedRoute>
+        <Fornecedor />
       </ProtectedRoute>
     ) 
   },

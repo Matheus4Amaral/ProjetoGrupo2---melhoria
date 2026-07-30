@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./ItemModal.css";
 import RegisterSupplier from "./RegisterSupplier";
 
@@ -16,7 +16,7 @@ export default function ItemModal({
     quantidade_inicial: "",
     preco_compra: "",
     preco_venda: "",
-    fornecedor: "",
+    id_fornecedor: "",
     descricao: "",
     peso: "",
     volume: "",
@@ -25,8 +25,7 @@ export default function ItemModal({
 
   const [formData, setFormData] = useState(initialFormData);
   const [fornecedores, setFornecedores] = useState([]);
-  const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
-  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [loadingFornecedores, setLoadingFornecedores] = useState(false);
   const [openSupplierModal, setOpenSupplierModal] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -34,122 +33,84 @@ export default function ItemModal({
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
 
+  // Carrega os fornecedores apenas quando o modal abre
   useEffect(() => {
+    let isMounted = true;
+
     if (!isOpen) {
-        setFormData(initialFormData);
-        setFornecedores([]);
-        setFornecedorSelecionado(null);
-        setMostrarSugestoes(false);
-        setSaving(false);
-        setOpenSupplierModal(false);
-        return;
+      setFormData(initialFormData);
+      setFornecedores([]);
+      setSaving(false);
+      setOpenSupplierModal(false);
+      return;
     }
 
-    if ((isEditMode || isViewMode) && itemSelecionado) {
-        const nomeFornecedor =
-        itemSelecionado.nome_fornecedor ||
-        itemSelecionado.fornecedor_nome ||
-        "";
+    async function carregarModal() {
+      const token = localStorage.getItem("token");
+      let listaFornecedores = [];
 
-        setFormData({
-        nome_produto: itemSelecionado.nome_produto || "",
-        categoria: itemSelecionado.categoria || "",
-        quantidade_inicial: itemSelecionado.quantidade_estoque_total ?? "",
-        preco_compra: itemSelecionado.preco_compra ?? "",
-        preco_venda: itemSelecionado.preco_venda ?? "",
-        fornecedor: nomeFornecedor,
-        descricao: itemSelecionado.descricao || "",
-        peso: itemSelecionado.peso ?? "",
-        volume: itemSelecionado.volume ?? "",
-        lote: itemSelecionado.lote ?? ""
-        });
+      if (token) {
+        try {
+          setLoadingFornecedores(true);
+          const response = await fetch("http://localhost:3001/api/supplier", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
 
-        if (itemSelecionado.id_fornecedor || nomeFornecedor) {
-        setFornecedorSelecionado({
-            id_fornecedor: itemSelecionado.id_fornecedor ?? null,
-            nome_fornecedor: nomeFornecedor
-        });
-        } else {
-        setFornecedorSelecionado(null);
+          const data = await response.json();
+
+          if (response.ok) {
+            listaFornecedores = Array.isArray(data) ? data : data.fornecedores || [];
+            if (isMounted) setFornecedores(listaFornecedores);
+          }
+        } catch (error) {
+          console.error("Erro ao carregar lista de fornecedores:", error);
+        } finally {
+          if (isMounted) setLoadingFornecedores(false);
         }
-    } else {
+      }
+
+      // Preenche dados para edição ou visualização
+      if ((isEditMode || isViewMode) && itemSelecionado) {
+        if (isMounted) {
+          setFormData({
+            nome_produto: itemSelecionado.nome_produto || "",
+            categoria: itemSelecionado.categoria || "",
+            quantidade_inicial: itemSelecionado.quantidade_estoque_total ?? "",
+            preco_compra: itemSelecionado.preco_compra ?? "",
+            preco_venda: itemSelecionado.preco_venda ?? "",
+            id_fornecedor: itemSelecionado.id_fornecedor ? String(itemSelecionado.id_fornecedor) : "",
+            descricao: itemSelecionado.descricao || "",
+            peso: itemSelecionado.peso ?? "",
+            volume: itemSelecionado.volume ?? "",
+            lote: itemSelecionado.lote ?? ""
+          });
+        }
+      } else if (isMounted) {
         setFormData(initialFormData);
-        setFornecedorSelecionado(null);
+      }
     }
-    }, [isOpen, mode, itemSelecionado]);
+
+    carregarModal();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleFornecedorChange = async (e) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-      fornecedor: value
-    }));
-
-    setFornecedorSelecionado(null);
-
-    if (value.trim().length < 2) {
-      setMostrarSugestoes(false);
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:3001/api/supplier?search=${encodeURIComponent(value)}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setFornecedores([]);
-        setMostrarSugestoes(false);
-        return;
-      }
-
-      const lista = Array.isArray(data) ? data : data.fornecedores || [];
-
-      setFornecedores(lista);
-      setMostrarSugestoes(lista.length > 0);
-    } catch (error) {
-      console.error("Erro ao buscar fornecedores:", error);
-      setFornecedores([]);
-      setMostrarSugestoes(false);
-    }
-  };
-
-  const handleSelecionarFornecedor = (fornecedor) => {
-    setFornecedorSelecionado(fornecedor);
-
-    setFormData((prev) => ({
-      ...prev,
-      fornecedor: fornecedor.nome_fornecedor
-    }));
-
-    setMostrarSugestoes(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (isViewMode) return;
 
     const token = localStorage.getItem("token");
@@ -185,7 +146,7 @@ export default function ItemModal({
       peso: formData.peso === "" ? null : Number(formData.peso),
       volume: formData.volume === "" ? null : Number(formData.volume),
       lote: formData.lote === "" ? null : Number(formData.lote),
-      id_fornecedor: fornecedorSelecionado ? fornecedorSelecionado.id_fornecedor : null
+      id_fornecedor: formData.id_fornecedor ? Number(formData.id_fornecedor) : null
     };
 
     if (isCreateMode) {
@@ -354,43 +315,40 @@ export default function ItemModal({
                 />
               </div>
 
-              <div className="form-group fornecedor-group full-width">
+              {/* SELECT PADRÃO NATIVO ESTILIZADO DE FORNECEDORES */}
+              <div className="form-group full-width">
                 <label>Fornecedor</label>
-                <div className="fornecedor-autocomplete">
-                  <input
-                    type="text"
-                    name="fornecedor"
-                    value={formData.fornecedor}
-                    onChange={handleFornecedorChange}
-                    placeholder="Digite o nome do fornecedor"
-                    autoComplete="off"
-                    disabled={isViewMode}
-                  />
+                <select
+                  name="id_fornecedor"
+                  value={formData.id_fornecedor}
+                  onChange={handleChange}
+                  disabled={isViewMode || loadingFornecedores}
+                >
+                  <option value="">
+                    {loadingFornecedores ? "Carregando fornecedores..." : "Selecione um fornecedor"}
+                  </option>
+                  {fornecedores.map((f) => {
+                    const nome = f.nome_fornecedor || f.nome_empresa || f.nome;
+                    const doc = f.documento ? ` (Doc: ${f.documento})` : "";
+                    return (
+                      <option key={f.id_fornecedor} value={f.id_fornecedor}>
+                        {nome}{doc}
+                      </option>
+                    );
+                  })}
+                </select>
 
-                  {!isViewMode && mostrarSugestoes && fornecedores.length > 0 && (
-                    <div className="fornecedor-dropdown">
-                      {fornecedores.map((fornecedor) => (
-                        <button
-                          type="button"
-                          key={fornecedor.id_fornecedor}
-                          className="fornecedor-option"
-                          onClick={() => handleSelecionarFornecedor(fornecedor)}
-                        >
-                          {fornecedor.nome_fornecedor}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
+                {/* BOTÃO + CADASTRAR FORNECEDOR LOGO ABAIXO */}
                 {!isViewMode && (
-                  <button
-                    type="button"
-                    className="btn-secondary cadastrar-fornecedor-btn"
-                    onClick={() => setOpenSupplierModal(true)}
-                  >
-                    + Cadastrar Fornecedor
-                  </button>
+                  <div className="supplier-btn-wrapper">
+                    <button
+                      type="button"
+                      className="btn-add-supplier"
+                      onClick={() => setOpenSupplierModal(true)}
+                    >
+                      + Cadastrar Fornecedor
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -443,23 +401,12 @@ export default function ItemModal({
           onSave={(novoFornecedor) => {
             if (!novoFornecedor) return;
 
-            setFornecedorSelecionado(novoFornecedor);
-
+            setFornecedores((prev) => [...prev, novoFornecedor]);
             setFormData((prev) => ({
               ...prev,
-              fornecedor: novoFornecedor.nome_fornecedor
+              id_fornecedor: String(novoFornecedor.id_fornecedor)
             }));
 
-            setFornecedores((prev) => {
-              const jaExiste = prev.some(
-                (f) => f.id_fornecedor === novoFornecedor.id_fornecedor
-              );
-
-              if (jaExiste) return prev;
-              return [novoFornecedor, ...prev];
-            });
-
-            setMostrarSugestoes(true);
             setOpenSupplierModal(false);
           }}
         />

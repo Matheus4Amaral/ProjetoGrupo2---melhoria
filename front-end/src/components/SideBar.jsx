@@ -104,6 +104,18 @@ function SideBar() {
                             />
                             <span>Vendas</span>
                         </NavLink>
+
+                        <NavLink
+                            to="/fornecedor"
+                            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
+                        >
+                            <img
+                                src="https://img.icons8.com/?size=20&id=cIzsD9VTMVOe&format=png&color=ffffff"
+                                alt="Ícone de Vendas"
+                                className="nav-icon"
+                            />
+                            <span>Fornecedor</span>
+                        </NavLink>
                     </nav>
                 </div>
 

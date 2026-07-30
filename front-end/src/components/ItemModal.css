@@ -118,33 +118,29 @@ textarea {
   grid-column: 1 / -1;
 }
 
-.fornecedor-group {
-  grid-column: span 1;
-}
-
-.fornecedor-btn-group {
+/* Área do Botão Cadastrar Fornecedor */
+.supplier-btn-wrapper {
+  margin-top: 8px;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
-.btn-secondary {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 16px;
-  background: #ecfdf5;
-  border: 1px solid #10b981;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #047857;
+.btn-add-supplier {
+  background-color: transparent;
+  color: #104f3a;
+  border: 1px dashed #104f3a;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.btn-secondary:hover {
-  background: #d1fae5;
+.btn-add-supplier:hover {
+  background-color: #104f3a;
+  color: #ffffff;
+  border-style: solid;
 }
 
 .item-modal-footer {
@@ -188,62 +184,6 @@ textarea {
   background: #059669;
 }
 
-.fornecedor-group {
-  position: relative;
-}
-
-.fornecedor-autocomplete {
-  position: relative;
-  width: 100%;
-}
-
-.fornecedor-autocomplete input {
-  width: 100%;
-}
-
-.fornecedor-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid #d9e2dc;
-  border-radius: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  z-index: 30;
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-.fornecedor-option {
-  width: 100%;
-  border: none;
-  background: #fff;
-  text-align: left;
-  padding: 12px 14px;
-  font-size: 14px;
-  color: #2f3a33;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-  border-bottom: 1px solid #eef2ef;
-}
-
-.fornecedor-option:last-child {
-  border-bottom: none;
-}
-
-.fornecedor-option:hover {
-  background: #f3fbf7;
-  color: #0f8a5f;
-}
-
-.fornecedor-option:focus {
-  outline: none;
-  background: #e9f8f1;
-  color: #0f8a5f;
-}
-
 @media (max-width: 640px) {
   .item-modal-content {
     width: 95%;
@@ -254,9 +194,7 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .full-width,
-  .fornecedor-group,
-  .fornecedor-btn-group {
+  .full-width {
     grid-column: auto;
   }
 
@@ -266,7 +204,7 @@ textarea {
 
   .btn-cancelar,
   .btn-confirmar,
-  .btn-secondary {
+  .btn-add-supplier {
     width: 100%;
   }
 }
