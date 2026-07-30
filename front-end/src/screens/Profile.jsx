@@ -3,6 +3,8 @@ import "./Profile.css";
 
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import ConfirmModal from "../components/ConfirmModal";
+import { useToast } from "../components/ToastContext";
 
 export default function Profile() {
   const [formData, setFormData] = useState({
@@ -21,14 +23,16 @@ export default function Profile() {
   });
 
   const [loading, setLoading] = useState(true);
-  const [mensagem, setMensagem] = useState({ tipo: "", texto: "" });
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     async function fetchUserData() {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        setMensagem({ tipo: "erro", texto: "Sessão expirada. Faça login novamente." });
+        toast.error("Sessão expirada. Faça login novamente.");
         setLoading(false);
         return;
       }
@@ -63,7 +67,7 @@ export default function Profile() {
           estado: data.estado || "",
         });
       } catch (err) {
-        setMensagem({ tipo: "erro", texto: err.message });
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
@@ -80,11 +84,14 @@ export default function Profile() {
     }));
   };
 
-  const handleSave = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setMensagem({ tipo: "", texto: "" });
+    setIsConfirmOpen(true);
+  };
 
+  const confirmSave = async () => {
     const token = localStorage.getItem("token");
+    setSaving(true);
 
     try {
       const response = await fetch("http://localhost:3001/api/perfil/update-user", {
@@ -99,12 +106,15 @@ export default function Profile() {
       const data = await response.json();
 
       if (response.ok) {
-        setMensagem({ tipo: "sucesso", texto: "Perfil atualizado com sucesso!" });
+        toast.success("Perfil atualizado com sucesso!");
+        setIsConfirmOpen(false);
       } else {
-        setMensagem({ tipo: "erro", texto: data.message || "Erro ao atualizar perfil." });
+        toast.error(data.message || "Erro ao atualizar perfil.");
       }
     } catch (err) {
-      setMensagem({ tipo: "erro", texto: "Erro ao conectar com o servidor." });
+      toast.error("Erro ao conectar com o servidor.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -135,19 +145,7 @@ export default function Profile() {
         <Header title="Meu Perfil" />
 
         <main className="profile-main">
-          {mensagem.texto && (
-            <div className={`alert ${mensagem.tipo}`} style={{
-              padding: "10px",
-              marginBottom: "15px",
-              borderRadius: "5px",
-              backgroundColor: mensagem.tipo === "sucesso" ? "#d4edda" : "#f8d7da",
-              color: mensagem.tipo === "sucesso" ? "#155724" : "#721c24"
-            }}>
-              {mensagem.texto}
-            </div>
-          )}
-
-          <form onSubmit={handleSave} className="card">
+          <form onSubmit={handleSubmit} className="card">
             <div className="left">
               <div className="avatar">{getIniciais(formData.nome_usuario)}</div>
               <h2>{formData.nome_usuario || "Usuário"}</h2>
@@ -283,7 +281,6 @@ export default function Profile() {
               </div>
 
               <div className="buttons">
-
                 <button type="submit" className="save">
                   Salvar Alterações
                 </button>
@@ -292,6 +289,17 @@ export default function Profile() {
           </form>
         </main>
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={confirmSave}
+        loading={saving}
+        title="Confirmar Alterações"
+        message="Deseja salvar as alterações do seu perfil?"
+        confirmLabel="Salvar"
+        confirmingLabel="Salvando..."
+      />
     </div>
   );
 }

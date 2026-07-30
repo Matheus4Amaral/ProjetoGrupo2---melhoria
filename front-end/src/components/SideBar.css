@@ -78,7 +78,7 @@
 }
 
 .sidebar-bottom {
-  width: 100%;
+  width: 100%;  
   padding-top: 18px;
 }
 
@@ -116,6 +116,13 @@
   border: none;
   background: none;
   cursor:pointer;
+  transition: background 0.2s ease;
+  padding: 5px;
+}
+
+.user-box:hover {
+  background-color: #ffffff0e;
+  border-radius: 10px;
 }
 
 .user-avatar {
