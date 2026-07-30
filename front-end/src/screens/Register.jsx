@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useAlert } from "../contexts/AlertContext";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { IMaskInput } from "react-imask";
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -55,15 +56,6 @@ export default function Cadastro() {
     }
 
     setFormData((prev) => ({ ...prev, cpf_cnpj: valor }));
-  };
-
-  const handleCepChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, "");
-    if (valor.length > 8) valor = valor.slice(0, 8);
-
-    valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
-
-    setFormData((prev) => ({ ...prev, cep: valor }));
   };
 
   const handleTelefoneChange = (e) => {
@@ -123,12 +115,17 @@ export default function Cadastro() {
     }
 
     try{
+      const payload = {
+        ...formData,
+        cep: formData.cep.replace(/\D/g, "") || null,
+      };
+
       const response = await fetch("http://localhost:3001/api/auth/register", {
         method : "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json()
@@ -252,13 +249,15 @@ export default function Cadastro() {
 
               <div className="cep-campo">
                 <label htmlFor="cep">Cep</label>
-                <input
+                <IMaskInput
                   className="input"
-                  type="text"
                   id="cep"
+                  mask="00000-000"
                   placeholder="00000-000"
-                  onChange={handleChange}
-                  maxLength={9}
+                  value={formData.cep}
+                  onAccept={(value) =>
+                    setFormData((prev) => ({ ...prev, cep: value }))
+                  }
                 />
               </div>
             </div>

@@ -88,6 +88,12 @@ export const register = async (req, res) => {
     return res.status(400).json({ message: 'A senha é obrigatória e deve ter no mínimo 6 caracteres' });
   }
 
+  const cepNormalizado = cep ? String(cep).replace(/\D/g, '') : null;
+
+  if (cepNormalizado && cepNormalizado.length !== 8) {
+    return res.status(400).json({ message: 'O CEP deve conter 8 dígitos' });
+  }
+
   try {
     const userExists = await pool.query(
       'SELECT id_usuario FROM public.usuario WHERE email = $1',
@@ -129,7 +135,7 @@ export const register = async (req, res) => {
         pais,
         numero,
         telefone,
-        cep,
+        cepNormalizado,
         bairro,
         hashedSenha
       ]
