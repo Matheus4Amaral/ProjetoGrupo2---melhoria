@@ -238,3 +238,24 @@
 .toggle-password:hover {
   color: #0f8b6d;
 }
+
+.campo-erro {
+    color: #dc2626;
+    font-size: 0.8rem;
+    margin-top: -8px;
+    margin-bottom: 4px;
+}
+
+.erro-geral {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.input-erro {
+    border-color: #dc2626 !important;
+}

@@ -1,7 +1,7 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./index.css";
 
 import Login from './screens/Login.jsx'
 import Register from './screens/Register.jsx'
@@ -12,53 +12,58 @@ import Profile from './screens/Profile.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { ToastProvider } from './components/ToastContext.jsx'
+import NotFound from "./screens/NotFound.jsx";
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Login />
+    path: "/",
+    element: <Login />,
   },
   {
-    path: '/register',
-    element: <Register />
+    path: "/register",
+    element: <Register />,
   },
   {
-    path: '/dashboard',
-    element:(
+    path: "/dashboard",
+    element: (
       <ProtectedRoute>
         <Dashboard />
       </ProtectedRoute>
-    ) 
+    ),
   },
   {
-    path: '/stock',
+    path: "/stock",
     element: (
       <ProtectedRoute>
         <Stock />
       </ProtectedRoute>
-    ) 
+    ),
   },
   {
-    path: '/sale',
+    path: "/sale",
     element: (
       <ProtectedRoute>
         <Sale />
       </ProtectedRoute>
-    ) 
+    ),
   },
   {
-    path: '/profile',
+    path: "/profile",
     element: (
       <ProtectedRoute>
         <Profile />
       </ProtectedRoute>
-    ) 
+    ),
   },
   {
-    path: '/forgot-password',
-    element: <ForgotPassword/>
-  }
-])
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
 
 createRoot(document.getElementById('root')).render(
    <StrictMode>
@@ -66,4 +71,4 @@ createRoot(document.getElementById('root')).render(
       <RouterProvider router={router} />
     </ToastProvider>
   </StrictMode>,
-)
+);
