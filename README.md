@@ -150,3 +150,27 @@ git push origin master
 ## Observações
 
 - Durante o desenvolvimento, o front-end e o back-end devem ser executados em terminais separados.
+
+---
+
+## Melhorias Propostas
+
+* Substituição dos alertas nativos por modais reutilizáveis.
+* Remoção do alerta exibido após o login.
+* Implementação de validação para o campo de senha.
+* Aplicação de máscaras nos campos de cadastro de produtos e fornecedores.
+* Inclusão da lista de fornecedores no formulário de cadastro de itens.
+* Adição de um modal de confirmação para logout.
+* Criação da tela de gerenciamento de fornecedores.
+* Criação da funcionalidade de cadastro de estoques.
+* Inclusão da opção de adicionar novos itens ao estoque.
+* Redução e ajuste da sidebar para melhor aproveitamento do espaço.
+* Atualização automática da quantidade em estoque após a realização de uma venda.
+* Adição da documentação da API com Swagger no back-end.
+* Correção e padronização das mensagens de retorno da API.
+* Correção da estrutura e do comportamento da sidebar.
+* Correção e atualização visual do dashboard.
+* Implementação de responsividade da interface para dispositivos móveis.
+* Aplicação de máscara no campo de CEP.
+* Normalização do CEP antes do envio e armazenamento.
+* Inclusão de um modal de confirmação para exclusão de vendas.
