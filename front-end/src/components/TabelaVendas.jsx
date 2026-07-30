@@ -189,28 +189,33 @@ export default function ListaVendas({ onVendaDeleted }) {
   };
 
   const handleConfirmDelete = async () => {
-    if (!vendaParaExcluir) return;
+  if (!vendaParaExcluir) return;
 
-    try {
-      setLoadingDelete(true);
-      await saleService.delete(vendaParaExcluir.id_venda);
-      
-      setIsDeleteModalOpen(false);
-      setVendaParaExcluir(null);
-      
-      await loadVendas();
-      
-      // Notifica o componente pai que uma venda foi excluída
-      if (onVendaDeleted) {
-        onVendaDeleted();
-      }
-    } catch (err) {
-      console.error('Erro ao excluir venda:', err);
-      setError('Erro ao excluir venda. Tente novamente.');
-    } finally {
-      setLoadingDelete(false);
+  try {
+    setLoadingDelete(true);
+    await saleService.delete(vendaParaExcluir.id_venda);
+
+    setIsDeleteModalOpen(false);
+    setVendaParaExcluir(null);
+
+    await loadVendas();
+
+    // Notifica o componente pai que a venda foi excluída com sucesso
+    if (onVendaDeleted) {
+      onVendaDeleted(true);
     }
-  };
+  } catch (err) {
+    console.error('Erro ao excluir venda:', err);
+    setError('Erro ao excluir venda. Tente novamente.');
+
+    // Notifica o componente pai que houve erro na exclusão
+    if (onVendaDeleted) {
+      onVendaDeleted(false);
+    }
+  } finally {
+    setLoadingDelete(false);
+  }
+};
 
   if (loading) {
     return <div className="tabela-vendas"><p>Carregando vendas...</p></div>;
@@ -359,6 +364,7 @@ export default function ListaVendas({ onVendaDeleted }) {
         isOpen={isEditModalOpen} 
         onClose={handleCloseEditModal} 
         venda={vendaSelecionada}
+        onSaved={loadVendas}
       />
       <DeleteConfirmModal 
         isOpen={isDeleteModalOpen}

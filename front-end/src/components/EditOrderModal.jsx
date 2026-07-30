@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import "./OrderModal.css";
 import { saleService } from "../services/saleService";
 import { productService } from "../services/productService";
+import ConfirmModal from "./ConfirmModal";
+import { useToast } from "../components/ToastContext";
 
-export default function EditOrderModal({ isOpen, onClose, venda }) {
+export default function EditOrderModal({ isOpen, onClose, venda, onSaved }) {
     const [nomeCliente, setNomeCliente] = useState("");
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -11,6 +13,9 @@ export default function EditOrderModal({ isOpen, onClose, venda }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const { toast } = useToast();
+
 
     useEffect(() => {
         if (venda && isOpen) {
@@ -82,7 +87,7 @@ export default function EditOrderModal({ isOpen, onClose, venda }) {
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    const handleSalvarEdicao = async () => {
+    const handleAbrirConfirmacao = () => {
         if (items.length === 0) {
             setError('Adicione pelo menos um item ao pedido');
             return;
@@ -93,6 +98,11 @@ export default function EditOrderModal({ isOpen, onClose, venda }) {
             return;
         }
 
+        setError(null);
+        setIsConfirmOpen(true);
+    };
+
+    const handleSalvarEdicao = async () => {
         try {
             setLoading(true);
             setError(null);
@@ -107,15 +117,22 @@ export default function EditOrderModal({ isOpen, onClose, venda }) {
             };
 
             await saleService.update(venda.id_venda, pedidoData);
-            
+
             setNomeCliente('');
             setItems([]);
+            setIsConfirmOpen(false);
             onClose();
-            
-            window.location.reload();
+
+            toast.success("Pedido atualizado com sucesso!");
+
+            if (onSaved) {
+                onSaved();
+            }
         } catch (err) {
             console.error('Erro ao atualizar pedido:', err);
             setError('Erro ao atualizar pedido. Tente novamente.');
+            setIsConfirmOpen(false);
+            toast.error("Erro ao atualizar pedido. Tente novamente.");
         } finally {
             setLoading(false);
         }
@@ -224,11 +241,22 @@ export default function EditOrderModal({ isOpen, onClose, venda }) {
                     <button type="button" onClick={onClose} className="btn-cancelar" disabled={loading}>
                         Cancelar
                     </button>
-                    <button type="button" onClick={handleSalvarEdicao} className="btn-confirmar" disabled={loading}>
+                    <button type="button" onClick={handleAbrirConfirmacao} className="btn-confirmar" disabled={loading}>
                         {loading ? 'Salvando...' : 'Salvar Alterações'}
                     </button>
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={handleSalvarEdicao}
+                loading={loading}
+                title="Confirmar Edição"
+                message="Deseja salvar as alterações deste pedido?"
+                confirmLabel="Salvar"
+                confirmingLabel="Salvando..."
+            />
         </div>
     );
 }

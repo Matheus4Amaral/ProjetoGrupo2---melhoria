@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./Stock.css";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
-import CardResumo from "../components/cardResumo";
+import CardResumo from "../components/CardResumo";
 import TabelaEstoque from "../components/TabelaEstoque";
 import ItemModal from "../components/ItemModal";
 

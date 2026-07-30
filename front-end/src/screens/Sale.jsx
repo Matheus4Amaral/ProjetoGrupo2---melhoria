@@ -3,9 +3,11 @@ import "./Sale.css";
 import SideBar from "../components/SideBar";
 import TabelaVendas from "../components/TabelaVendas";
 import Header from "../components/Header";
-import CardResumo from "../components/cardResumo";
+import CardResumo from "../components/CardResumo";
 import OrderModal from "../components/OrderModal";
 import { saleService } from "../services/saleService";
+import { useToast } from "../components/ToastContext";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function Sale() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +17,8 @@ export default function Sale() {
     pedidosHoje: 0,
     ticketMedio: 0
   });
+
+  const {toast} = useToast()
 
   useEffect(() => {
     loadVendas();
@@ -79,10 +83,15 @@ export default function Sale() {
     loadVendas();
   };
 
-  const handleVendaDeleted = () => {
+ const handleVendaDeleted = (success) => {
+  if (success) {
+    toast.success("Pedido removido com sucesso!");
     // Recarrega as vendas e recalcula as estatísticas
     loadVendas();
-  };
+  } else {
+    toast.error("Erro ao remover o pedido. Tente novamente.");
+  }
+};
 
   return (
     <>
@@ -105,6 +114,8 @@ export default function Sale() {
         </div>
       </div>
       <OrderModal isOpen={isModalOpen} onClose={handleCloseModal} />
+
+      
     </>
   );
 }
