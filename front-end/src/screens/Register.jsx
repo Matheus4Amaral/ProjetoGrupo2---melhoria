@@ -3,6 +3,7 @@ import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useAlert } from "../contexts/AlertContext";
+import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ export default function Cadastro() {
   // }
 
   const showAlert = useAlert();
+
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [confirmSenha, setConfirmSenha] = useState("");
 
   const [formData, setFormData] = useState({
     nome_usuario: "",
@@ -84,10 +89,38 @@ export default function Cadastro() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!validarDocumento(formData.cpfCnpj)) {
-    //   alert("Por favor, insira um CPF ou CNPJ válido.");
-    //   return;
-    // }
+    const novosErros = {};
+
+    if (!formData.nome_usuario || !formData.nome_usuario.trim()) {
+      novosErros.nome_usuario = "O nome é obrigatório.";
+    }
+
+    if (!formData.email || !formData.email.trim()) {
+      novosErros.email = "O e-mail é obrigatório.";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        novosErros.email = "Formato de e-mail inválido.";
+      }
+    }
+
+    if (!formData.senha || !formData.senha.trim()) {
+      novosErros.senha = "A senha é obrigatória.";
+    } else if (formData.senha.trim().length < 6) {
+      novosErros.senha = "A senha deve ter no mínimo 6 caracteres.";
+    }
+
+    if (!confirmSenha || !confirmSenha.trim()) {
+      novosErros.confirmSenha = "Confirme sua senha.";
+    } else if (confirmSenha !== formData.senha) {
+      novosErros.confirmSenha = "As senhas não coincidem.";
+    }
+
+    setErrors(novosErros);
+
+    if (Object.keys(novosErros).length > 0) {
+      return;
+    }
 
     try{
       const response = await fetch("http://localhost:3001/api/auth/register", {
@@ -139,12 +172,15 @@ export default function Cadastro() {
 
             <label htmlFor="nome_usuario">Nome Completo</label>
             <input
-              className="input"
+              className={`input ${errors.nome_usuario ? "input-error" : ""}`}
               type="text"
               id="nome_usuario"
               placeholder="Seu nome completo"
               onChange={handleChange}
             />
+            {errors.nome_usuario && (
+              <span className="error-message">{errors.nome_usuario}</span>
+            )}
 
             <label htmlFor="nome_empresa">Nome Empresa</label>
             <input
@@ -157,12 +193,15 @@ export default function Cadastro() {
 
             <label htmlFor="email">E-mail</label>
             <input
-              className="input"
+              className={`input ${errors.email ? "input-error" : ""}`}
               type="email"
               id="email"
               placeholder="seuemail@empresa.com"
               onChange={handleChange}
             />
+            {errors.email && (
+              <span className="error-message">{errors.email}</span>
+            )}
 
             <label htmlFor="cpf_cnpj">CPF/CNPJ</label>
             <input
@@ -312,14 +351,50 @@ export default function Cadastro() {
             />
 
             <label htmlFor="senha">Senha</label>
-            <input
-              className="input"
-              type="password"
-              id="senha"
-              placeholder="********"
-              value={formData.senha}
-              onChange={handleChange}
-            />
+            <div className="password-field">
+              <input
+                className={`input ${errors.senha ? "input-error" : ""}`}
+                type={showPassword ? "text" : "password"}
+                id="senha"
+                placeholder="********"
+                value={formData.senha}
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
+              </button>
+            </div>
+            {errors.senha && (
+              <span className="error-message">{errors.senha}</span>
+            )}
+
+            <label htmlFor="confirmSenha">Confirmar Senha</label>
+            <div className="password-field">
+              <input
+                className={`input ${errors.confirmSenha ? "input-error" : ""}`}
+                type={showPassword ? "text" : "password"}
+                id="confirmSenha"
+                placeholder="********"
+                value={confirmSenha}
+                onChange={(e) => setConfirmSenha(e.target.value)}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
+              </button>
+            </div>
+            {errors.confirmSenha && (
+              <span className="error-message">{errors.confirmSenha}</span>
+            )}
 
             <button
               type="submit"

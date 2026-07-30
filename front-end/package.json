@@ -9,7 +9,7 @@
   "main": "eslint.config.js",
   "scripts": {
     "dev": "vite --port 3002",
-    "build": "vite build",         
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

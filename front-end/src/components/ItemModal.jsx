@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./ItemModal.css";
 import RegisterSupplier from "./RegisterSupplier";
+import SupplierPickerModal from "./SupplierPickerModal";
 import { useAlert } from "../contexts/AlertContext";
 import { IMaskInput } from "react-imask";
 
@@ -30,6 +31,7 @@ export default function ItemModal({
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
   const [openSupplierModal, setOpenSupplierModal] = useState(false);
+  const [openSupplierPicker, setOpenSupplierPicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const showAlert = useAlert();
 
@@ -57,6 +59,7 @@ export default function ItemModal({
       setMostrarSugestoes(false);
       setSaving(false);
       setOpenSupplierModal(false);
+      setOpenSupplierPicker(false);
       return;
     }
 
@@ -178,6 +181,17 @@ export default function ItemModal({
     }));
 
     setMostrarSugestoes(false);
+  };
+
+  const handleSelecionarFornecedorPicker = (fornecedor) => {
+    setFornecedorSelecionado(fornecedor);
+
+    setFormData((prev) => ({
+      ...prev,
+      fornecedor: fornecedor.nome_fornecedor
+    }));
+
+    setOpenSupplierPicker(false);
   };
 
   const handleSubmit = async (e) => {
@@ -439,30 +453,26 @@ export default function ItemModal({
                     disabled={isViewMode}
                   />
 
-                  {!isViewMode && mostrarSugestoes && fornecedores.length > 0 && (
-                    <div className="fornecedor-dropdown">
-                      {fornecedores.map((fornecedor) => (
-                        <button
-                          type="button"
-                          key={fornecedor.id_fornecedor}
-                          className="fornecedor-option"
-                          onClick={() => handleSelecionarFornecedor(fornecedor)}
-                        >
-                          {fornecedor.nome_fornecedor}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {!isViewMode && (
-                  <button
-                    type="button"
-                    className="btn-secondary cadastrar-fornecedor-btn"
-                    onClick={() => setOpenSupplierModal(true)}
-                  >
-                    + Cadastrar Fornecedor
-                  </button>
+                  <div className="fornecedor-acoes">
+                    <button
+                      type="button"
+                      className="btn-secondary pesquisar-fornecedor-btn"
+                      onClick={() => setOpenSupplierPicker(true)}
+                    >
+                      Selecionar Fornecedor
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-secondary cadastrar-fornecedor-btn"
+                      onClick={() => setOpenSupplierModal(true)}
+                    >
+                      + Cadastrar Fornecedor
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -508,6 +518,14 @@ export default function ItemModal({
           </form>
         </div>
       </div>
+
+      {!isViewMode && (
+        <SupplierPickerModal
+          isOpen={openSupplierPicker}
+          onClose={() => setOpenSupplierPicker(false)}
+          onSelect={handleSelecionarFornecedorPicker}
+        />
+      )}
 
       {!isViewMode && (
         <RegisterSupplier

@@ -5,6 +5,14 @@ import jwt from 'jsonwebtoken'
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: 'O e-mail é obrigatório' });
+    }
+
+    if (!password || !password.trim()) {
+      return res.status(400).json({ message: 'A senha é obrigatória' });
+    }
+
     try{
       const result = await pool.query(
         'SELECT id_usuario, nome_usuario, email, senha FROM public.usuario WHERE email = $1',
@@ -66,6 +74,19 @@ export const register = async (req, res) => {
     bairro,
     senha
   } = req.body;
+
+  if (!email || !email.trim()) {
+    return res.status(400).json({ message: 'O e-mail é obrigatório' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    return res.status(400).json({ message: 'Formato de e-mail inválido' });
+  }
+
+  if (!senha || senha.trim().length < 6) {
+    return res.status(400).json({ message: 'A senha é obrigatória e deve ter no mínimo 6 caracteres' });
+  }
 
   try {
     const userExists = await pool.query(

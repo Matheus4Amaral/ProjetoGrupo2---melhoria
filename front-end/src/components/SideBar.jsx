@@ -3,9 +3,11 @@ import Logo from "../assets/sidebarLogo.png";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+// import { FiLogOut } from "react-icons/fi";
 
 function SideBar() {
     const navigate = useNavigate();
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const [userData, setUserData] = useState({
         nome_usuario: "",
@@ -104,22 +106,23 @@ function SideBar() {
                             />
                             <span>Vendas</span>
                         </NavLink>
+
+                        <NavLink
+                            to="/supplier"
+                            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
+                        >
+                            <img
+                                src="https://img.icons8.com/?size=20&id=15767&format=png&color=ffffff"
+                                alt="Ícone de Fornecedores"
+                                className="nav-icon"
+                            />
+                            <span>Fornecedores</span>
+                        </NavLink>
                     </nav>
                 </div>
 
                 <div className="sidebar-bottom">
                     <hr />
-
-                    <div className="logout-wrapper">
-                        <img
-                            src="https://img.icons8.com/?size=20&id=22112&format=png&color=ffffff"
-                            alt="Ícone de sair"
-                            className="logout-icon"
-                        />
-                        <button className="logout-button" onClick={handleLogout}>
-                            Sair
-                        </button>
-                    </div>
 
                     <button className="user-box" onClick={() => navigate("/profile")}>
                         <div className="user-avatar">{getIniciais(userData.nome_usuario)}</div>
@@ -128,10 +131,70 @@ function SideBar() {
                             <span>{userData.nome_empresa || "Empresa"}</span>
                         </div>
                     </button>
+
+                    <div className="logout-wrapper">
+                        <img
+                            src="https://img.icons8.com/?size=20&id=22112&format=png&color=ffffff"
+                            alt="Ícone de sair"
+                            className="logout-icon"
+                        />
+                        <button
+                            className="logout-button"
+                            onClick={() => setShowLogoutModal(true)}
+                        >
+                            Sair
+                        </button>
+                    </div>
+
                 </div>
             </section>
+
+            {showLogoutModal && (
+                <div
+                    className="logout-modal"
+                    onClick={() => setShowLogoutModal(false)}
+                >
+                    <div
+                        className="logout-modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* <div className="logout-modal-icon">
+                            <FiLogOut />
+                        </div> */}
+
+                        <h2>Deseja sair?</h2>
+
+                        <p>
+                            Você será desconectado da sua conta e precisará fazer login
+                            novamente para acessar o sistema.
+                        </p>
+
+                        <div className="logout-modal-buttons">
+                            <button
+                                className="btn-cancelar"
+                                onClick={() => setShowLogoutModal(false)}
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                className="btn-sair"
+                                onClick={() => {
+                                    setShowLogoutModal(false);
+                                    handleLogout();
+                                }}
+                            >
+                                Sair
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
+
+
 }
+
 
 export default SideBar;

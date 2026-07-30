@@ -3,7 +3,8 @@ import "./RegisterSupplier.css";
 import { useAlert } from "../contexts/AlertContext";
 import { IMaskInput } from "react-imask";
 
-export default function RegisterSupplier({ isOpen, onClose, onSave }) {
+export default function RegisterSupplier({ isOpen, onClose, onSave, fornecedorParaEditar = null }) {
+  const isEditMode = !!fornecedorParaEditar;
   const initialFormData = {
     nome_fornecedor: "",
     rua: "",
@@ -20,14 +21,32 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
 
   const [formData, setFormData] = useState(initialFormData);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({ nome_fornecedor: "", documento: "", email: "" });
   const showAlert = useAlert();
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && isEditMode) {
+      // Pré-preenche os campos com os dados do fornecedor a editar
+      setFormData({
+        nome_fornecedor: fornecedorParaEditar.nome_fornecedor || "",
+        rua: fornecedorParaEditar.rua || "",
+        bairro: fornecedorParaEditar.bairro || "",
+        cidade: fornecedorParaEditar.cidade || "",
+        estado: fornecedorParaEditar.estado || "",
+        pais: fornecedorParaEditar.pais || "",
+        cep: fornecedorParaEditar.cep ? String(fornecedorParaEditar.cep) : "",
+        email: fornecedorParaEditar.email || "",
+        telefone: fornecedorParaEditar.telefone || "",
+        documento: fornecedorParaEditar.documento || "",
+        tipo_pessoa: fornecedorParaEditar.tipo_pessoa || "",
+      });
+      setErrors({ nome_fornecedor: "", documento: "", email: "" });
+    } else if (!isOpen) {
       setFormData(initialFormData);
       setSaving(false);
+      setErrors({ nome_fornecedor: "", documento: "", email: "" });
     }
-  }, [isOpen]);
+  }, [isOpen, fornecedorParaEditar]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +55,10 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
       ...prev,
       [name]: value
     }));
+
+    if (name in errors) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -48,8 +71,23 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
       return;
     }
 
+    const novosErros = { nome_fornecedor: "", documento: "", email: "" };
+
     if (!formData.nome_fornecedor.trim()) {
-      showAlert("Informe o nome do fornecedor.");
+      novosErros.nome_fornecedor = "Informe o nome do fornecedor.";
+    }
+
+    if (!formData.documento.trim()) {
+      novosErros.documento = "Informe o documento do fornecedor.";
+    }
+
+    if (!formData.email.trim()) {
+      novosErros.email = "Informe o e-mail do fornecedor.";
+    }
+
+    setErrors(novosErros);
+
+    if (novosErros.nome_fornecedor || novosErros.documento || novosErros.email) {
       return;
     }
 
@@ -70,23 +108,38 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     try {
       setSaving(true);
 
-      const response = await fetch("http://localhost:3001/api/supplier", {
-        method: "POST",
+      const url = isEditMode
+        ? `http://localhost:3001/api/supplier/${fornecedorParaEditar.id_fornecedor}`
+        : "http://localhost:3001/api/supplier";
+
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        showAlert(data.message || "Erro ao cadastrar fornecedor.");
+        showAlert(
+          data.message ||
+            (isEditMode
+              ? "Erro ao atualizar fornecedor."
+              : "Erro ao cadastrar fornecedor.")
+        );
         return;
       }
 
-      showAlert("Fornecedor cadastrado com sucesso.");
+      showAlert(
+        isEditMode
+          ? "Fornecedor atualizado com sucesso."
+          : "Fornecedor cadastrado com sucesso."
+      );
 
       if (onSave) {
         onSave(data.fornecedor || data.data || data);
@@ -94,7 +147,11 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
 
       onClose();
     } catch (error) {
-      showAlert(`Erro ao cadastrar fornecedor: ${error.message}`);
+      showAlert(
+        `Erro ao ${
+          isEditMode ? "atualizar" : "cadastrar"
+        } fornecedor: ${error.message}`
+      );
     } finally {
       setSaving(false);
     }
@@ -106,7 +163,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="supplier-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="supplier-modal-header">
-          <h2>Cadastrar Fornecedor</h2>
+          <h2>{isEditMode ? "Editar Fornecedor" : "Cadastrar Fornecedor"}</h2>
           <button type="button" className="close-btn" onClick={onClose}>
             ✕
           </button>
@@ -122,7 +179,11 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
               value={formData.nome_fornecedor}
               onChange={handleChange}
               placeholder="Ex.: Mercado Silva"
+              className={errors.nome_fornecedor ? "input-error" : ""}
             />
+            {errors.nome_fornecedor && (
+              <span className="error-message">{errors.nome_fornecedor}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -154,13 +215,18 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                   ? "123.456.789-00"
                   : "12.345.678/0001-90"
               }
-              onAccept={(value) =>
+              className={errors.documento ? "input-error" : ""}
+              onAccept={(value) => {
                 setFormData((prev) => ({
                   ...prev,
                   documento: value,
-                }))
-              }
+                }));
+                setErrors((prev) => ({ ...prev, documento: "" }));
+              }}
             />
+            {errors.documento && (
+              <span className="error-message">{errors.documento}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -171,7 +237,11 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
               value={formData.email}
               onChange={handleChange}
               placeholder="Ex:contato@empresa.com"
+              className={errors.email ? "input-error" : ""}
             />
+            {errors.email && (
+              <span className="error-message">{errors.email}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -273,7 +343,11 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
         </button>
 
         <button type="submit" className="btn-confirmar" disabled={saving}>
-          {saving ? "Salvando..." : "Salvar Fornecedor"}
+          {saving
+            ? "Salvando..."
+            : isEditMode
+            ? "Atualizar Fornecedor"
+            : "Salvar Fornecedor"}
         </button>
       </div>
     </form>

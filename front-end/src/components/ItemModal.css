@@ -147,6 +147,32 @@ textarea {
   background: #d1fae5;
 }
 
+.fornecedor-acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.fornecedor-acoes .btn-secondary {
+  flex: 1;
+}
+
+.pesquisar-fornecedor-btn {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.pesquisar-fornecedor-btn:hover {
+  background: #dbeafe;
+}
+
+@media (max-width: 640px) {
+  .fornecedor-acoes {
+    flex-direction: column;
+  }
+}
+
 .item-modal-footer {
   display: flex;
   justify-content: flex-end;

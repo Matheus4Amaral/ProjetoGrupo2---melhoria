@@ -8,6 +8,7 @@ import Register from './screens/Register.jsx'
 import Dashboard from './screens/Dashboard.jsx'
 import Stock from './screens/Stock.jsx'
 import Sale from './screens/Sale.jsx'
+import Supplier from './screens/Supplier.jsx'
 import Profile from './screens/Profile.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
@@ -46,6 +47,14 @@ const router = createBrowserRouter([
         <Sale />
       </ProtectedRoute>
     ) 
+  },
+  {
+    path: '/supplier',
+    element: (
+      <ProtectedRoute>
+        <Supplier />
+      </ProtectedRoute>
+    )
   },
   {
     path: '/profile',
