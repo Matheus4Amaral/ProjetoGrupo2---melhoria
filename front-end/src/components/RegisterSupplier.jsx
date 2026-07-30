@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import "./RegisterSupplier.css";
 
 export default function RegisterSupplier({ isOpen, onClose, onSave }) {
@@ -41,12 +42,12 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      toast.error("Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_fornecedor.trim()) {
-      alert("Informe o nome do fornecedor.");
+      toast.error("Informe o nome do fornecedor.");
       return;
     }
 
@@ -79,11 +80,11 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao cadastrar fornecedor.");
+        toast.error(data.message || "Erro ao cadastrar fornecedor.");
         return;
       }
 
-      alert("Fornecedor cadastrado com sucesso.");
+      toast.success("Fornecedor cadastrado com sucesso.");
 
       if (onSave) {
         onSave(data.fornecedor || data.data || data);
@@ -91,7 +92,8 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
 
       onClose();
     } catch (error) {
-      alert(`Erro ao cadastrar fornecedor: ${error.message}`);
+      console.error("Erro ao cadastrar fornecedor:", error);
+      toast.error("Não foi possível cadastrar o fornecedor. Verifique sua conexão.");
     } finally {
       setSaving(false);
     }

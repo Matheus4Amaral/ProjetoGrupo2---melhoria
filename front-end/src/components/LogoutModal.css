@@ -1,0 +1,119 @@
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.logout-modal-content {
+  background: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logout-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logout-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0d2b20;
+}
+
+.logout-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.logout-close-btn:hover {
+  color: #4b5563;
+}
+
+.logout-modal-body {
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.logout-modal-icon {
+  font-size: 44px;
+  margin-bottom: 16px;
+}
+
+.logout-modal-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.logout-modal-subtext {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.logout-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.logout-btn-cancelar {
+  flex: 1;
+  padding: 12px 24px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn-cancelar:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.logout-btn-confirmar {
+  flex: 1;
+  padding: 12px 24px;
+  background: #0f8b5f;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn-confirmar:hover {
+  background: #0c744f;
+}

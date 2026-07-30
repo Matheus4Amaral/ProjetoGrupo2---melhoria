@@ -1,14 +1,15 @@
 import "./Register.css";
 import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { formatCPFCNPJ, validateCPFCNPJ, removeNonNumeric } from "../utils/validators";
+
+const SENHA_MINIMA = 8;
 
 export default function Cadastro() {
   const navigate = useNavigate();
-
-  // function handleRegister() {
-  //   navigate("/dashboard");
-  // }
 
   const [formData, setFormData] = useState({
     nome_usuario: "",
@@ -26,9 +27,23 @@ export default function Cadastro() {
     senha: "",
   });
 
+  //Fica fora do formData porque não deve ser enviado para a API
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+
+  const [erros, setErros] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showSenha, setShowSenha] = useState(false);
+  const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+
+  //Limpa o erro do campo assim que o usuário começa a corrigir
+  const limparErro = (campo) => {
+    setErros((prev) => ({ ...prev, [campo]: "" }));
+  };
+
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    limparErro(id);
   };
 
   const handlePaisChange = (e) => {
@@ -37,34 +52,22 @@ export default function Cadastro() {
   };
 
   const handleCpfCnpjChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, "");
-    if (valor.length > 14) valor = valor.slice(0, 14);
-
-    if (valor.length > 11) {
-      valor = valor.replace(/^(\d{2})(\d)/, "$1.$2");
-      valor = valor.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-      valor = valor.replace(/\.(\d{3})(\d)/, ".$1/$2");
-      valor = valor.replace(/(\d{4})(\d{2})$/, "$1-$2");
-    } else {
-      valor = valor.replace(/^(\d{3})(\d)/, "$1.$2");
-      valor = valor.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-      valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    }
-
-    setFormData((prev) => ({ ...prev, cpf_cnpj: valor }));
+    setFormData((prev) => ({ ...prev, cpf_cnpj: formatCPFCNPJ(e.target.value) }));
+    limparErro("cpf_cnpj");
   };
 
   const handleCepChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, "");
+    let valor = removeNonNumeric(e.target.value);
     if (valor.length > 8) valor = valor.slice(0, 8);
 
     valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
 
     setFormData((prev) => ({ ...prev, cep: valor }));
+    limparErro("cep");
   };
 
   const handleTelefoneChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, "");
+    let valor = removeNonNumeric(e.target.value);
     if (valor.length > 11) valor = valor.slice(0, 11);
 
     // (XX) XXXX-XXXX ou (XX) XXXXX-XXXX
@@ -74,44 +77,102 @@ export default function Cadastro() {
     }
 
     setFormData((prev) => ({ ...prev, telefone: valor }));
+    limparErro("telefone");
   };
 
-  const validarDocumento = (doc) => {
-    const numeros = doc.replace(/\D/g, "");
-    if (numeros.length !== 11 && numeros.length !== 14) return false;
-    if (/^(\d)\1+$/.test(numeros)) return false;
-    return true;
+  const validarFormulario = () => {
+    const novosErros = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.nome_usuario.trim()) {
+      novosErros.nome_usuario = "Informe seu nome completo.";
+    }
+
+    if (!formData.nome_empresa.trim()) {
+      novosErros.nome_empresa = "Informe o nome da empresa.";
+    }
+
+    if (!formData.email.trim()) {
+      novosErros.email = "Informe seu e-mail.";
+    } else if (!emailRegex.test(formData.email)) {
+      novosErros.email = "Digite um endereço de e-mail válido.";
+    }
+
+    if (!formData.cpf_cnpj.trim()) {
+      novosErros.cpf_cnpj = "Informe seu CPF ou CNPJ.";
+    } else if (!validateCPFCNPJ(formData.cpf_cnpj)) {
+      novosErros.cpf_cnpj = "CPF ou CNPJ inválido. Confira os números digitados.";
+    }
+
+    //Campos de endereço são opcionais, mas se preenchidos precisam estar completos
+    if (formData.cep && removeNonNumeric(formData.cep).length !== 8) {
+      novosErros.cep = "O CEP deve ter 8 dígitos.";
+    }
+
+    if (formData.telefone && removeNonNumeric(formData.telefone).length < 10) {
+      novosErros.telefone = "Telefone incompleto. Inclua o DDD.";
+    }
+
+    if (!formData.senha) {
+      novosErros.senha = "Crie uma senha.";
+    } else if (formData.senha.length < SENHA_MINIMA) {
+      novosErros.senha = `A senha deve ter pelo menos ${SENHA_MINIMA} caracteres.`;
+    }
+
+    if (!confirmarSenha) {
+      novosErros.confirmarSenha = "Repita a senha para confirmar.";
+    } else if (confirmarSenha !== formData.senha) {
+      novosErros.confirmarSenha = "As senhas não são iguais.";
+    }
+
+    setErros(novosErros);
+
+    //Leva o usuário até o primeiro campo com problema
+    const primeiroErro = Object.keys(novosErros)[0];
+    if (primeiroErro) {
+      document.getElementById(primeiroErro)?.focus();
+    }
+
+    return primeiroErro === undefined;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!validarDocumento(formData.cpfCnpj)) {
-    //   alert("Por favor, insira um CPF ou CNPJ válido.");
-    //   return;
-    // }
+    //Impede envios duplicados enquanto a requisição está em andamento
+    if (loading) return;
+
+    if (!validarFormulario()) return;
 
     try{
+      setLoading(true);
+
       const response = await fetch("http://localhost:3001/api/auth/register", {
         method : "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        //A coluna cep é numérica no banco: envia só os dígitos, ou null quando vazio
+        body: JSON.stringify({
+          ...formData,
+          cep: formData.cep ? removeNonNumeric(formData.cep) : null,
+        }),
       });
 
       const data = await response.json()
 
       if(!response.ok) {
-        alert(`${data.message}`)
+        toast.error(data.message || "Erro ao realizar o cadastro.")
         return;
       }
 
-      alert("Cadastro realizado com sucesso!")
+      toast.success("Cadastro realizado com sucesso!")
       navigate("/")
     } catch (error){
-      console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
+      console.error("Erro ao realizar cadastro:", error)
+      toast.error("Não foi possível conectar ao servidor. Verifique se o back-end está funcionando.")
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,47 +196,59 @@ export default function Cadastro() {
         <section className="right-panel-register">
           <img src={Logo} alt="Logo" className="logo" />
 
-          <form className="login-form" onSubmit={handleSubmit}>
+          {/* noValidate desativa os balões do navegador para usarmos as mensagens abaixo de cada campo */}
+          <form className="login-form" onSubmit={handleSubmit} noValidate>
             <h2>Cadastro</h2>
             <h3>Preencha os campos abaixo para criar sua conta</h3>
 
             <label htmlFor="nome_usuario">Nome Completo</label>
             <input
-              className="input"
+              className={`input ${erros.nome_usuario ? "input-error" : ""}`}
               type="text"
               id="nome_usuario"
               placeholder="Seu nome completo"
+              value={formData.nome_usuario}
               onChange={handleChange}
+              aria-invalid={erros.nome_usuario ? "true" : "false"}
             />
+            {erros.nome_usuario && <span className="field-error">{erros.nome_usuario}</span>}
 
             <label htmlFor="nome_empresa">Nome Empresa</label>
             <input
-              className="input"
+              className={`input ${erros.nome_empresa ? "input-error" : ""}`}
               type="text"
               id="nome_empresa"
               placeholder="Nome da sua empresa"
+              value={formData.nome_empresa}
               onChange={handleChange}
+              aria-invalid={erros.nome_empresa ? "true" : "false"}
             />
+            {erros.nome_empresa && <span className="field-error">{erros.nome_empresa}</span>}
 
             <label htmlFor="email">E-mail</label>
             <input
-              className="input"
+              className={`input ${erros.email ? "input-error" : ""}`}
               type="email"
               id="email"
               placeholder="seuemail@empresa.com"
+              value={formData.email}
               onChange={handleChange}
+              aria-invalid={erros.email ? "true" : "false"}
             />
+            {erros.email && <span className="field-error">{erros.email}</span>}
 
             <label htmlFor="cpf_cnpj">CPF/CNPJ</label>
             <input
-              className="input"
+              className={`input ${erros.cpf_cnpj ? "input-error" : ""}`}
               type="text"
               id="cpf_cnpj"
               placeholder="000.000.000-00 ou 00.000.000/0000-00"
               value={formData.cpf_cnpj}
               maxLength={18}
               onChange={handleCpfCnpjChange}
+              aria-invalid={erros.cpf_cnpj ? "true" : "false"}
             />
+            {erros.cpf_cnpj && <span className="field-error">{erros.cpf_cnpj}</span>}
 
             <div className="rua-numero-linha">
               <div className="rua-campo">
@@ -216,13 +289,16 @@ export default function Cadastro() {
               <div className="cep-campo">
                 <label htmlFor="cep">Cep</label>
                 <input
-                  className="input"
+                  className={`input ${erros.cep ? "input-error" : ""}`}
                   type="text"
                   id="cep"
                   placeholder="00000-000"
-                  onChange={handleChange}
+                  value={formData.cep}
+                  onChange={handleCepChange}
                   maxLength={9}
+                  aria-invalid={erros.cep ? "true" : "false"}
                 />
+                {erros.cep && <span className="field-error">{erros.cep}</span>}
               </div>
             </div>
 
@@ -310,31 +386,77 @@ export default function Cadastro() {
 
             <label htmlFor="telefone">Telefone</label>
             <input
-              className="input"
+              className={`input ${erros.telefone ? "input-error" : ""}`}
               type="text"
               id="telefone"
               placeholder="(XX) XXXXX-XXXX"
               value={formData.telefone}
               onChange={handleTelefoneChange}
               maxLength={15}
+              aria-invalid={erros.telefone ? "true" : "false"}
             />
+            {erros.telefone && <span className="field-error">{erros.telefone}</span>}
 
             <label htmlFor="senha">Senha</label>
-            <input
-              className="input"
-              type="password"
-              id="senha"
-              placeholder="********"
-              value={formData.senha}
-              onChange={handleChange}
-            />
+            <div className="password-field">
+              <input
+                className={`input ${erros.senha ? "input-error" : ""}`}
+                type={showSenha ? "text" : "password"}
+                id="senha"
+                placeholder="********"
+                value={formData.senha}
+                onChange={handleChange}
+                aria-invalid={erros.senha ? "true" : "false"}
+              />
+
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowSenha(!showSenha)}
+                aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showSenha ? <RiEyeOffLine /> : <RiEyeLine />}
+              </button>
+            </div>
+            {erros.senha ? (
+              <span className="field-error">{erros.senha}</span>
+            ) : (
+              <span className="field-hint">Use no mínimo {SENHA_MINIMA} caracteres.</span>
+            )}
+
+            <label htmlFor="confirmarSenha">Confirmar Senha</label>
+            <div className="password-field">
+              <input
+                className={`input ${erros.confirmarSenha ? "input-error" : ""}`}
+                type={showConfirmarSenha ? "text" : "password"}
+                id="confirmarSenha"
+                placeholder="********"
+                value={confirmarSenha}
+                onChange={(e) => {
+                  setConfirmarSenha(e.target.value);
+                  limparErro("confirmarSenha");
+                }}
+                aria-invalid={erros.confirmarSenha ? "true" : "false"}
+              />
+
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowConfirmarSenha(!showConfirmarSenha)}
+                aria-label={showConfirmarSenha ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showConfirmarSenha ? <RiEyeOffLine /> : <RiEyeLine />}
+              </button>
+            </div>
+            {erros.confirmarSenha && <span className="field-error">{erros.confirmarSenha}</span>}
 
             <button
               type="submit"
               className="register-button"
+              disabled={loading}
             >
-              <span>Cadastrar</span>
-              <span className="arrow">→</span>
+              <span>{loading ? "Cadastrando..." : "Cadastrar"}</span>
+              {!loading && <span className="arrow">→</span>}
             </button>
 
             <p className="register-text">

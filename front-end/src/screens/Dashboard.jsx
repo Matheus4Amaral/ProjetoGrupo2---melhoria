@@ -1,7 +1,8 @@
 import './Dashboard.css';
 
-import Chart from "react-apexcharts";  
+import Chart from "react-apexcharts";
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 import SideBar from '../components/SideBar'
 import Header from '../components/Header';
@@ -53,15 +54,16 @@ export default function Dashboard(){
             const data = await response.json()
 
             if(!response.ok) {
-                alert(`${data.message}`)
+                toast.error(data.message || "Erro ao realizar a reposição.")
                 return;
             }
 
-            alert("Reposição realizada com sucesso")
+            toast.success("Reposição realizada com sucesso.")
 
             setOpenReplacementModal(false)
         } catch(error){
-            alert(`Erro ao conectar com o servidor ${error.message}`)
+            console.error("Erro ao realizar reposição:", error)
+            toast.error("Não foi possível concluir a reposição. Verifique sua conexão.")
         } finally{
             setLoadingReplacement(false)
         }
@@ -92,7 +94,8 @@ export default function Dashboard(){
             const data = await response.json()
 
             if(!response.ok){
-                alert(`${data.message}`)
+                toast.error(data.message || "Erro ao carregar o dashboard.")
+                return;
             }
             setDashboardData({
                 totalProductsStock: data.totalProductsStock ?? 0,
@@ -105,7 +108,8 @@ export default function Dashboard(){
                 recentSuppliers: data.recentSuppliers ?? 0
             });
         } catch(error){
-            alert(`Erro ao carregar dashboard ${error.message}`)
+            console.error("Erro ao carregar dashboard:", error)
+            toast.error("Não foi possível carregar o dashboard. Verifique sua conexão.")
         } finally{
             setLoadingDashboard(false)
         }

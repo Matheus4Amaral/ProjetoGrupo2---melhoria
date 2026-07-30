@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import "./TabelaEstoque.css";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 export default function TabelaEstoque({
   produtos = [],
@@ -13,6 +15,7 @@ export default function TabelaEstoque({
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [itemParaExcluir, setItemParaExcluir] = useState(null);
 
   const formatarMoeda = (valor) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -59,17 +62,19 @@ export default function TabelaEstoque({
     return "status-normal";
   };
 
-  async function handleDelete(item) {
+  function handleAbrirExclusao(item) {
     if (!estoqueAtual?.id_estoque) {
-      alert("Estoque não identificado para exclusão.");
+      toast.error("Estoque não identificado para exclusão.");
       return;
     }
 
-    const confirmar = window.confirm(
-      `Deseja realmente remover o produto "${item.nome_produto}" do estoque?`
-    );
+    setItemParaExcluir(item);
+  }
 
-    if (!confirmar) return;
+  async function handleConfirmarExclusao() {
+    const item = itemParaExcluir;
+
+    if (!item) return;
 
     const token = localStorage.getItem("token");
 
@@ -90,14 +95,16 @@ export default function TabelaEstoque({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao excluir produto do estoque.");
+        toast.error(data.message || "Erro ao excluir produto do estoque.");
         return;
       }
 
-      alert("Produto removido do estoque com sucesso.");
+      toast.success("Produto removido do estoque com sucesso.");
+      setItemParaExcluir(null);
       await onReload();
     } catch (error) {
-      alert(`Erro ao excluir produto: ${error.message}`);
+      console.error("Erro ao excluir produto:", error);
+      toast.error("Não foi possível excluir o produto. Verifique sua conexão.");
     } finally {
       setDeletingId(null);
     }
@@ -231,7 +238,7 @@ export default function TabelaEstoque({
                         type="button"
                         title="Excluir"
                         disabled={deletingId === item.id_produto}
-                        onClick={() => handleDelete(item)}
+                        onClick={() => handleAbrirExclusao(item)}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#4B5563">
                           <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120Z" />
@@ -245,6 +252,15 @@ export default function TabelaEstoque({
           </tbody>
         </table>
       </div>
+
+      <DeleteConfirmModal
+        isOpen={itemParaExcluir !== null}
+        onClose={() => setItemParaExcluir(null)}
+        onConfirm={handleConfirmarExclusao}
+        loading={deletingId !== null}
+        mensagem={`Deseja mesmo remover "${itemParaExcluir?.nome_produto}" do estoque?`}
+        submensagem="Se remover, não haverá como recuperá-lo!"
+      />
     </div>
   );
 }

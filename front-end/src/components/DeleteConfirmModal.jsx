@@ -1,6 +1,13 @@
 import "./DeleteConfirmModal.css";
 
-export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, loading }) {
+export default function DeleteConfirmModal({
+    isOpen,
+    onClose,
+    onConfirm,
+    loading,
+    mensagem = "Deseja mesmo excluir esse pedido?",
+    submensagem = "Se excluir, não haverá como recuperá-lo!"
+}) {
     if (!isOpen) return null;
 
     return (
@@ -14,10 +21,10 @@ export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, loading
                 <div className="delete-modal-body">
                     <div className="warning-icon">⚠️</div>
                     <p className="warning-text">
-                        Deseja mesmo excluir esse pedido?
+                        {mensagem}
                     </p>
                     <p className="warning-subtext">
-                        Se excluir, não haverá como recuperá-lo!
+                        {submensagem}
                     </p>
                 </div>
 

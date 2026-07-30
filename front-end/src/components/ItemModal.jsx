@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import "./ItemModal.css";
 import RegisterSupplier from "./RegisterSupplier";
 
@@ -155,22 +156,22 @@ export default function ItemModal({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      toast.error("Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_produto.trim()) {
-      alert("Informe o nome do produto.");
+      toast.error("Informe o nome do produto.");
       return;
     }
 
     if (!formData.categoria.trim()) {
-      alert("Informe a categoria.");
+      toast.error("Informe a categoria.");
       return;
     }
 
     if (!estoqueAtual?.id_estoque && isCreateMode) {
-      alert("Nenhum estoque encontrado.");
+      toast.error("Crie um estoque na tela de Estoque antes de cadastrar produtos.");
       return;
     }
 
@@ -213,14 +214,16 @@ export default function ItemModal({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
+        toast.error(
           data.message ||
             (isEditMode ? "Erro ao atualizar produto." : "Erro ao cadastrar produto.")
         );
         return;
       }
 
-      alert(isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
+      toast.success(
+        isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso."
+      );
 
       if (onSuccess) {
         await onSuccess();
@@ -228,7 +231,8 @@ export default function ItemModal({
 
       onClose();
     } catch (error) {
-      alert(`Erro ao salvar item: ${error.message}`);
+      console.error("Erro ao salvar item:", error);
+      toast.error("Não foi possível salvar o item. Verifique sua conexão.");
     } finally {
       setSaving(false);
     }

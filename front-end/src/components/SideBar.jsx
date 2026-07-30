@@ -1,8 +1,10 @@
 import "./SideBar.css";
 import Logo from "../assets/sidebarLogo.png";
+import LogoutModal from "./LogoutModal";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 function SideBar() {
     const navigate = useNavigate();
@@ -11,6 +13,8 @@ function SideBar() {
         nome_usuario: "",
         nome_empresa: ""
     });
+
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     useEffect(() => {
         async function fetchUserData() {
@@ -44,8 +48,12 @@ function SideBar() {
     }, []);
 
     function handleLogout() {
+        setShowLogoutModal(false);
+
         localStorage.removeItem("token");
         localStorage.removeItem("usuario");
+
+        toast.success("Você saiu da sua conta.");
         navigate("/");
     }
 
@@ -116,7 +124,10 @@ function SideBar() {
                             alt="Ícone de sair"
                             className="logout-icon"
                         />
-                        <button className="logout-button" onClick={handleLogout}>
+                        <button
+                            className="logout-button"
+                            onClick={() => setShowLogoutModal(true)}
+                        >
                             Sair
                         </button>
                     </div>
@@ -130,6 +141,12 @@ function SideBar() {
                     </button>
                 </div>
             </section>
+
+            <LogoutModal
+                isOpen={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={handleLogout}
+            />
         </>
     );
 }
