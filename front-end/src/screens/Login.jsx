@@ -3,6 +3,7 @@ import Logo from '../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import toast from 'react-hot-toast';
 
 export default function Login() {
 
@@ -36,21 +37,25 @@ export default function Login() {
 
       const data = await response.json()
 
-      if(!response.ok) {
-        alert(`${data.message}`)
-        return;
-      }
+      //Checando se a resposta da requisição foi bem-sucedida
+      if (!response.ok) {
+      toast.error(data.message || "Usuário ou senha incorretos.");
+      return;
+}
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-      alert("Login realizado com sucesso!")
+      
       navigate("/dashboard")
-    } catch (error){
-      console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
-    }
-  };
+    } catch (error) {
+  console.error("Erro ao realizar login:", error);
+
+  toast.error(
+    "Não foi possível conectar ao servidor. Verifique se o back-end está funcionando."
+  )
+}
+};
 
   return (
     <>

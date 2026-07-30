@@ -11,6 +11,7 @@ import Sale from './screens/Sale.jsx'
 import Profile from './screens/Profile.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import { Toaster } from 'react-hot-toast'
 
 const router = createBrowserRouter([
   {
@@ -60,7 +61,32 @@ const router = createBrowserRouter([
 ])
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
+  //Configuração do Toaster para exibir notificações de sucesso e erro com estilos personalizados
+ <StrictMode>
+  <RouterProvider router={router} />
+
+  <Toaster
+    position="top-right"
+    toastOptions={{
+      duration: 3500,
+      style: {
+        background: '#ffffff',
+        color: '#12372a',
+        border: '1px solid #d9e8df',
+      },
+      success: {
+        iconTheme: {
+          primary: '#14966f',
+          secondary: '#ffffff',
+        },
+      },
+      error: {
+        iconTheme: {
+          primary: '#d14343',
+          secondary: '#ffffff',
+        },
+      },
+    }}
+  />
+</StrictMode>
 )
