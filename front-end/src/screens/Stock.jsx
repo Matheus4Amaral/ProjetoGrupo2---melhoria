@@ -126,7 +126,8 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
         <SideBar />
         <div className="stock-panel">
           <Header
-            title="Estoque"
+            // title="Estoque"
+            title={estoqueAtual ? `Estoque: ${estoqueAtual.descricao}` : "Estoque"}
             // Se ainda não existe estoque cadastrado, o botão vira "Cadastrar Estoque".
             // Se já existe, o botão volta a ser "Novo Item" normalmente.
             buttonText={estoqueAtual ? "Novo Item" : "Cadastrar Estoque"}
