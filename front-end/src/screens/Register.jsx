@@ -27,7 +27,7 @@ export default function Cadastro() {
     senha: "",
   });
 
-  //Fica fora do formData porque não deve ser enviado para a API
+  // Fica fora do formData porque não deve ser enviado para a API
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const [erros, setErros] = useState({});
@@ -37,7 +37,7 @@ export default function Cadastro() {
   const [resultadosCep, setResultadosCep] = useState([]);
   const [buscandoCep, setBuscandoCep] = useState(false);
 
-  //Limpa o erro do campo assim que o usuário começa a corrigir
+  // Limpa o erro do campo assim que o usuário começa a corrigir
   const limparErro = (campo) => {
     setErros((prev) => ({ ...prev, [campo]: "" }));
   };
@@ -228,7 +228,7 @@ const selecionarEndereco = (endereco) => {
       novosErros.cpf_cnpj = "CPF ou CNPJ inválido. Confira os números digitados.";
     }
 
-    //Campos de endereço são opcionais, mas se preenchidos precisam estar completos
+    // Campos de endereço são opcionais, mas se preenchidos precisam estar completos
     if (formData.cep && removeNonNumeric(formData.cep).length !== 8) {
       novosErros.cep = "O CEP deve ter 8 dígitos.";
     }
@@ -251,7 +251,7 @@ const selecionarEndereco = (endereco) => {
 
     setErros(novosErros);
 
-    //Leva o usuário até o primeiro campo com problema
+    // Leva o usuário até o primeiro campo com problema
     const primeiroErro = Object.keys(novosErros)[0];
     if (primeiroErro) {
       document.getElementById(primeiroErro)?.focus();
@@ -263,7 +263,7 @@ const selecionarEndereco = (endereco) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    //Impede envios duplicados enquanto a requisição está em andamento
+    // Impede envios duplicados enquanto a requisição está em andamento
     if (loading) return;
 
     if (!validarFormulario()) return;
@@ -276,7 +276,8 @@ const selecionarEndereco = (endereco) => {
         headers: {
           "Content-Type": "application/json",
         },
-        //A coluna cep é numérica no banco: envia só os dígitos, ou null quando vazio
+
+        // A coluna cep é numérica no banco: envia só os dígitos, ou null quando vazio
         body: JSON.stringify({
           ...formData,
           cep: formData.cep ? removeNonNumeric(formData.cep) : null,
@@ -450,14 +451,13 @@ const selecionarEndereco = (endereco) => {
                   placeholder="00000-000"
                   value={formData.cep}
                   onChange={handleCepChange}
-      //Busca o endereço automaticamente quando o usuário sai do campo
                   onBlur={buscarCep}
                   maxLength={9}
                   aria-invalid={erros.cep ? "true" : "false"}
                 />
                 {erros.cep && <span className="field-error">{erros.cep}</span>}
 
-              { /* Botão para buscar o CEP pelo endereço */ }
+              {/* Botão para buscar o CEP pelo endereço */}
                   <button
                     type="button"
                     className="buscar-cep-link"
@@ -472,7 +472,7 @@ const selecionarEndereco = (endereco) => {
                   {resultadosCep.length > 0 && (
                     <div className="resultados-cep">
                       <p>Selecione o endereço:</p>
-                      //
+                      
                       {resultadosCep.map((endereco, index) => (
                         <button
                           type="button"
