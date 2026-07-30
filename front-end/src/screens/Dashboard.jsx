@@ -270,7 +270,7 @@ export default function Dashboard() {
                 <div className="stock-header">
                   <div className="stock-title-group">
                     <h3>Estoque Baixo</h3>
-                    <p>6 itens requerem atenção</p>
+                    <p>{lowStockProducts.length} {lowStockProducts.length > 1 ? "produtos" : "produto"} com estoque baixo</p>
                   </div>
                 </div>
 
