@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Logo from '../assets/sidebarLogo.png';
+import Logo from "../assets/sidebarLogo.png";
 import { FaLock, FaCheckCircle } from "react-icons/fa";
 import "./ForgotPassword.css";
 
@@ -33,13 +33,16 @@ export default function ForgotPassword() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("http://localhost:3001/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "http://localhost:3001/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
         },
-        body: JSON.stringify({ email }),
-      });
+      );
 
       const data = await response.json();
 
@@ -88,11 +91,7 @@ export default function ForgotPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 className={error ? "forgot-input-error" : ""}
               />
-              {error && (
-                <p className="forgot-error-message">
-                  {errorMessage}
-                </p>
-              )}
+              {error && <p className="forgot-error-message">{errorMessage}</p>}
             </div>
 
             <button className="forgot-button" onClick={handleSubmit}>
@@ -144,8 +143,7 @@ export default function ForgotPassword() {
 
             <p className="forgot-info">
               Verifique sua caixa de entrada e também a pasta de spam.
-              <br />
-              O link permanecerá válido por 30 minutos.
+              <br />O link permanecerá válido por 30 minutos.
             </p>
 
             <button

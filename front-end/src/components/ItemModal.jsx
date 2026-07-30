@@ -8,7 +8,7 @@ export default function ItemModal({
   estoqueAtual,
   onSuccess,
   mode = "create",
-  itemSelecionado = null
+  itemSelecionado = null,
 }) {
   const initialFormData = {
     nome_produto: "",
@@ -20,7 +20,7 @@ export default function ItemModal({
     descricao: "",
     peso: "",
     volume: "",
-    lote: ""
+    lote: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -56,14 +56,16 @@ export default function ItemModal({
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           });
 
           const data = await response.json();
 
           if (response.ok) {
-            listaFornecedores = Array.isArray(data) ? data : data.fornecedores || [];
+            listaFornecedores = Array.isArray(data)
+              ? data
+              : data.fornecedores || [];
             if (isMounted) setFornecedores(listaFornecedores);
           }
         } catch (error) {
@@ -82,11 +84,13 @@ export default function ItemModal({
             quantidade_inicial: itemSelecionado.quantidade_estoque_total ?? "",
             preco_compra: itemSelecionado.preco_compra ?? "",
             preco_venda: itemSelecionado.preco_venda ?? "",
-            id_fornecedor: itemSelecionado.id_fornecedor ? String(itemSelecionado.id_fornecedor) : "",
+            id_fornecedor: itemSelecionado.id_fornecedor
+              ? String(itemSelecionado.id_fornecedor)
+              : "",
             descricao: itemSelecionado.descricao || "",
             peso: itemSelecionado.peso ?? "",
             volume: itemSelecionado.volume ?? "",
-            lote: itemSelecionado.lote ?? ""
+            lote: itemSelecionado.lote ?? "",
           });
         }
       } else if (isMounted) {
@@ -105,7 +109,7 @@ export default function ItemModal({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -139,14 +143,20 @@ export default function ItemModal({
       nome_produto: formData.nome_produto.trim(),
       categoria: formData.categoria.trim(),
       quantidade_inicial:
-        formData.quantidade_inicial === "" ? 0 : Number(formData.quantidade_inicial),
-      preco_compra: formData.preco_compra === "" ? 0 : Number(formData.preco_compra),
-      preco_venda: formData.preco_venda === "" ? 0 : Number(formData.preco_venda),
+        formData.quantidade_inicial === ""
+          ? 0
+          : Number(formData.quantidade_inicial),
+      preco_compra:
+        formData.preco_compra === "" ? 0 : Number(formData.preco_compra),
+      preco_venda:
+        formData.preco_venda === "" ? 0 : Number(formData.preco_venda),
       descricao: formData.descricao.trim() || null,
       peso: formData.peso === "" ? null : Number(formData.peso),
       volume: formData.volume === "" ? null : Number(formData.volume),
       lote: formData.lote === "" ? null : Number(formData.lote),
-      id_fornecedor: formData.id_fornecedor ? Number(formData.id_fornecedor) : null
+      id_fornecedor: formData.id_fornecedor
+        ? Number(formData.id_fornecedor)
+        : null,
     };
 
     if (isCreateMode) {
@@ -166,9 +176,9 @@ export default function ItemModal({
         method,
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -176,12 +186,18 @@ export default function ItemModal({
       if (!response.ok) {
         alert(
           data.message ||
-            (isEditMode ? "Erro ao atualizar produto." : "Erro ao cadastrar produto.")
+            (isEditMode
+              ? "Erro ao atualizar produto."
+              : "Erro ao cadastrar produto."),
         );
         return;
       }
 
-      alert(isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
+      alert(
+        isEditMode
+          ? "Produto atualizado com sucesso."
+          : "Produto cadastrado com sucesso.",
+      );
 
       if (onSuccess) {
         await onSuccess();
@@ -200,14 +216,17 @@ export default function ItemModal({
   return (
     <>
       <div className="modal-overlay" onClick={onClose}>
-        <div className="item-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="item-modal-content"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="item-modal-header">
             <h2>
               {isCreateMode
                 ? "Cadastrar Novo Item"
                 : isEditMode
-                ? "Editar Item"
-                : "Visualizar Item"}
+                  ? "Editar Item"
+                  : "Visualizar Item"}
             </h2>
 
             <button className="close-btn" onClick={onClose} type="button">
@@ -325,14 +344,17 @@ export default function ItemModal({
                   disabled={isViewMode || loadingFornecedores}
                 >
                   <option value="">
-                    {loadingFornecedores ? "Carregando fornecedores..." : "Selecione um fornecedor"}
+                    {loadingFornecedores
+                      ? "Carregando fornecedores..."
+                      : "Selecione um fornecedor"}
                   </option>
                   {fornecedores.map((f) => {
                     const nome = f.nome_fornecedor || f.nome_empresa || f.nome;
                     const doc = f.documento ? ` (Doc: ${f.documento})` : "";
                     return (
                       <option key={f.id_fornecedor} value={f.id_fornecedor}>
-                        {nome}{doc}
+                        {nome}
+                        {doc}
                       </option>
                     );
                   })}
@@ -385,8 +407,8 @@ export default function ItemModal({
                       ? "Atualizando..."
                       : "Salvando..."
                     : isEditMode
-                    ? "Atualizar Item"
-                    : "Salvar Item"}
+                      ? "Atualizar Item"
+                      : "Salvar Item"}
                 </button>
               )}
             </div>
@@ -404,7 +426,7 @@ export default function ItemModal({
             setFornecedores((prev) => [...prev, novoFornecedor]);
             setFormData((prev) => ({
               ...prev,
-              id_fornecedor: String(novoFornecedor.id_fornecedor)
+              id_fornecedor: String(novoFornecedor.id_fornecedor),
             }));
 
             setOpenSupplierModal(false);

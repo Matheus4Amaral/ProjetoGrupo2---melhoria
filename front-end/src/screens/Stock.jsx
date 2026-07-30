@@ -59,8 +59,8 @@ export default function Stock() {
         signal, // AbortSignal
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       const dataEstoques = await responseEstoques.json();
@@ -91,9 +91,9 @@ export default function Stock() {
           signal, // AbortSignal
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
+            "Content-Type": "application/json",
+          },
+        },
       );
 
       const dataProdutos = await responseProdutos.json();
@@ -103,7 +103,9 @@ export default function Stock() {
         return;
       }
 
-      setProdutos(Array.isArray(dataProdutos.produtos) ? dataProdutos.produtos : []);
+      setProdutos(
+        Array.isArray(dataProdutos.produtos) ? dataProdutos.produtos : [],
+      );
     } catch (error) {
       // Ignora erro se for apenas o cancelamento intencional da requisição ao mudar de rota
       if (error.name !== "AbortError") {
@@ -128,8 +130,12 @@ export default function Stock() {
   }, []);
 
   const totalProdutos = produtos.length;
-  const produtosAlerta = produtos.filter((item) => item.status === "Alerta").length;
-  const produtosCritico = produtos.filter((item) => item.status === "Crítico").length;
+  const produtosAlerta = produtos.filter(
+    (item) => item.status === "Alerta",
+  ).length;
+  const produtosCritico = produtos.filter(
+    (item) => item.status === "Crítico",
+  ).length;
 
   return (
     <>
@@ -144,7 +150,15 @@ export default function Stock() {
 
           <main className="stock-main">
             {errorMessage && (
-              <div style={{ color: "red", padding: "10px", marginBottom: "15px", backgroundColor: "#ffe6e6", borderRadius: "5px" }}>
+              <div
+                style={{
+                  color: "red",
+                  padding: "10px",
+                  marginBottom: "15px",
+                  backgroundColor: "#ffe6e6",
+                  borderRadius: "5px",
+                }}
+              >
                 {errorMessage}
               </div>
             )}

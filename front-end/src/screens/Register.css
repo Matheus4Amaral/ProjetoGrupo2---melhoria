@@ -167,7 +167,9 @@
   justify-content: center;
   gap: 10px;
   box-shadow: 0 8px 18px rgba(15, 139, 95, 0.22);
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   margin-top: 8px;
 }
 

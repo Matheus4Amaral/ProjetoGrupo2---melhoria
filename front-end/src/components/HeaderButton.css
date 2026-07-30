@@ -20,12 +20,12 @@
   color: #184d3b;
 }
 
-.button-title{
+.button-title {
   width: 212px;
   height: 41px;
   border-radius: 6px;
   background: #008155;
-  color: #FFF;
+  color: #fff;
   font-family: Inter;
   font-size: 20px;
   font-style: normal;
@@ -34,10 +34,10 @@
   border: none;
 }
 
-.button{
-    display: flex;
-    flex-direction: row;
-    justify-content: right;
-    align-items: center;
-    padding-left: 1180px;
+.button {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+  align-items: center;
+  padding-left: 1180px;
 }

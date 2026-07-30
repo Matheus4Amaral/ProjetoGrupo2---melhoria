@@ -16,7 +16,7 @@ export default function Fornecedor() {
     email: "",
     telefone: "",
     documento: "",
-    tipo_pessoa: ""
+    tipo_pessoa: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -42,8 +42,8 @@ export default function Fornecedor() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await response.json();
@@ -65,7 +65,9 @@ export default function Fornecedor() {
 
     try {
       setLoadingCep(true);
-      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cepLimpo}/json/`,
+      );
       const data = await response.json();
 
       if (data.erro) {
@@ -80,7 +82,7 @@ export default function Fornecedor() {
         bairro: data.bairro || prev.bairro,
         cidade: data.localidade || prev.cidade,
         estado: data.uf || prev.estado,
-        pais: "Brasil"
+        pais: "Brasil",
       }));
 
       // Move o foco do cursor para o campo "Número"
@@ -89,7 +91,6 @@ export default function Fornecedor() {
           numeroInputRef.current.focus();
         }
       }, 100);
-
     } catch (error) {
       console.error("Erro ao buscar CEP:", error);
     } finally {
@@ -124,7 +125,7 @@ export default function Fornecedor() {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -145,14 +146,24 @@ export default function Fornecedor() {
 
     const docNumeros = formData.documento.replace(/\D/g, "");
 
-    if (docNumeros.length !== 0 && docNumeros.length !== 11 && docNumeros.length !== 14) {
-      alert(`O documento possui ${docNumeros.length} dígitos. Informe exatamente 11 dígitos para CPF ou 14 dígitos para CNPJ.`);
+    if (
+      docNumeros.length !== 0 &&
+      docNumeros.length !== 11 &&
+      docNumeros.length !== 14
+    ) {
+      alert(
+        `O documento possui ${docNumeros.length} dígitos. Informe exatamente 11 dígitos para CPF ou 14 dígitos para CNPJ.`,
+      );
       return;
     }
 
     const payload = {
       nome_fornecedor: formData.nome_fornecedor.trim(),
-      rua: formData.rua.trim() ? (formData.numero ? `${formData.rua.trim()}, ${formData.numero.trim()}` : formData.rua.trim()) : null,
+      rua: formData.rua.trim()
+        ? formData.numero
+          ? `${formData.rua.trim()}, ${formData.numero.trim()}`
+          : formData.rua.trim()
+        : null,
       bairro: formData.bairro.trim() || null,
       cidade: formData.cidade.trim() || null,
       estado: formData.estado.trim() || null,
@@ -161,7 +172,7 @@ export default function Fornecedor() {
       email: formData.email.trim() || null,
       telefone: formData.telefone.trim() || null,
       documento: docNumeros || null,
-      tipo_pessoa: formData.tipo_pessoa.trim() || null
+      tipo_pessoa: formData.tipo_pessoa.trim() || null,
     };
 
     try {
@@ -171,9 +182,9 @@ export default function Fornecedor() {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -265,7 +276,14 @@ export default function Fornecedor() {
 
                 {/* CAMPO CEP COM BUSCA AUTOMÁTICA */}
                 <div className="form-group">
-                  <label>CEP {loadingCep && <span style={{ fontSize: "12px", color: "#104f3a" }}>(Buscando...)</span>}</label>
+                  <label>
+                    CEP{" "}
+                    {loadingCep && (
+                      <span style={{ fontSize: "12px", color: "#104f3a" }}>
+                        (Buscando...)
+                      </span>
+                    )}
+                  </label>
                   <input
                     type="text"
                     name="cep"
@@ -379,7 +397,9 @@ export default function Fornecedor() {
                         <td>{f.telefone || "-"}</td>
                         <td>{f.email || "-"}</td>
                         <td>
-                          {f.cidade && f.estado ? `${f.cidade}/${f.estado}` : f.cidade || "-"}
+                          {f.cidade && f.estado
+                            ? `${f.cidade}/${f.estado}`
+                            : f.cidade || "-"}
                         </td>
                       </tr>
                     ))}

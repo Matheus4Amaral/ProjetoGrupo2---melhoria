@@ -13,7 +13,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     email: "",
     telefone: "",
     documento: "",
-    tipo_pessoa: ""
+    tipo_pessoa: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -31,7 +31,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -61,7 +61,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
       email: formData.email.trim() || null,
       telefone: formData.telefone.trim() || null,
       documento: formData.documento.trim() || null,
-      tipo_pessoa: formData.tipo_pessoa.trim() || null
+      tipo_pessoa: formData.tipo_pessoa.trim() || null,
     };
 
     try {
@@ -71,9 +71,9 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -101,7 +101,10 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="supplier-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="supplier-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="supplier-modal-header">
           <h2>Cadastrar Fornecedor</h2>
           <button type="button" className="close-btn" onClick={onClose}>

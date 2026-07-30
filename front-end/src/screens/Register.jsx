@@ -1,7 +1,7 @@
 import "./Register.css";
 import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -9,6 +9,48 @@ export default function Cadastro() {
   // function handleRegister() {
   //   navigate("/dashboard");
   // }
+
+  const [loadingCep, setLoadingCep] = useState(false);
+
+  const numeroInputRef = useRef(null);
+
+  const buscarEnderecoPorCep = async (cepLimpo) => {
+    if (cepLimpo.length !== 8) return;
+
+    try {
+      setLoadingCep(true);
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cepLimpo}/json/`,
+      );
+      const data = await response.json();
+
+      if (data.erro) {
+        alert("CEP não encontrado.");
+        return;
+      }
+
+      // Preenche automaticamente os campos de endereço
+      setFormData((prev) => ({
+        ...prev,
+        rua: data.logradouro || prev.rua,
+        bairro: data.bairro || prev.bairro,
+        cidade: data.localidade || prev.cidade,
+        estado: data.uf || prev.estado,
+        pais: "Brasil",
+      }));
+
+      // Move o foco para o campo "Número"
+      setTimeout(() => {
+        if (numeroInputRef.current) {
+          numeroInputRef.current.focus();
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+    } finally {
+      setLoadingCep(false);
+    }
+  };
 
   const [formData, setFormData] = useState({
     nome_usuario: "",
@@ -53,9 +95,17 @@ export default function Cadastro() {
     let valor = e.target.value.replace(/\D/g, "");
     if (valor.length > 8) valor = valor.slice(0, 8);
 
-    valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
-
     setFormData((prev) => ({ ...prev, cep: valor }));
+
+    if (valor.length === 8) {
+      buscarEnderecoPorCep(valor);
+    }
+
+    if (valor.length >= 5) {
+      valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
+    }
+
+    e.target.value = valor;
   };
 
   const handleTelefoneChange = (e) => {
@@ -86,27 +136,27 @@ export default function Cadastro() {
     //   return;
     // }
 
-    try{
+    try {
       const response = await fetch("http://localhost:3001/api/auth/register", {
-        method : "POST",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json()
+      const data = await response.json();
 
-      if(!response.ok) {
-        alert(`${data.message}`)
+      if (!response.ok) {
+        alert(`${data.message}`);
         return;
       }
 
-      alert("Cadastro realizado com sucesso!")
-      navigate("/")
-    } catch (error){
-      console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
+      alert("Cadastro realizado com sucesso!");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      alert(`Erro ao conectar com o servidor: ${error.message}`);
     }
   };
 
@@ -141,6 +191,7 @@ export default function Cadastro() {
               id="nome_usuario"
               placeholder="Seu nome completo"
               onChange={handleChange}
+              required
             />
 
             <label htmlFor="nome_empresa">Nome Empresa</label>
@@ -150,6 +201,7 @@ export default function Cadastro() {
               id="nome_empresa"
               placeholder="Nome da sua empresa"
               onChange={handleChange}
+              required
             />
 
             <label htmlFor="email">E-mail</label>
@@ -159,6 +211,7 @@ export default function Cadastro() {
               id="email"
               placeholder="seuemail@empresa.com"
               onChange={handleChange}
+              required
             />
 
             <label htmlFor="cpf_cnpj">CPF/CNPJ</label>
@@ -170,6 +223,7 @@ export default function Cadastro() {
               value={formData.cpf_cnpj}
               maxLength={18}
               onChange={handleCpfCnpjChange}
+              required
             />
 
             <div className="rua-numero-linha">
@@ -180,7 +234,9 @@ export default function Cadastro() {
                   type="text"
                   id="rua"
                   placeholder="Nome da rua"
+                  value={formData.rua}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -190,8 +246,11 @@ export default function Cadastro() {
                   className="input"
                   type="text"
                   id="numero"
+                  value={formData.numero}
+                  ref={numeroInputRef}
                   placeholder="Número"
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -204,7 +263,9 @@ export default function Cadastro() {
                   type="text"
                   id="bairro"
                   placeholder="Nome do bairro"
-                  onChange={handleChange} 
+                  value={formData.bairro}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -215,76 +276,40 @@ export default function Cadastro() {
                   type="text"
                   id="cep"
                   placeholder="00000-000"
-                  onChange={handleChange}
+                  value={formData.cep}
+                  onChange={handleCepChange}
                   maxLength={9}
+                  required
                 />
               </div>
             </div>
 
             <div className="estado-pais-linha">
-            <div className="estado">
-            <label htmlFor="estado">Estado</label>
-            <select className="input" id="estado" onChange={handleChange}>
-              <option value="">Selecione o estado</option>
-              <option value="AC">Acre</option>
-              <option value="AL">Alagoas</option>
-              <option value="AP">Amapá</option>
-              <option value="AM">Amazonas</option>
-              <option value="BA">Bahia</option>
-              <option value="CE">Ceará</option>
-              <option value="DF">Distrito Federal</option>
-              <option value="ES">Espírito Santo</option>
-              <option value="GO">Goiás</option>
-              <option value="MA">Maranhão</option>
-              <option value="MT">Mato Grosso</option>
-              <option value="MS">Mato Grosso do Sul</option>
-              <option value="MG">Minas Gerais</option>
-              <option value="PA">Pará</option>
-              <option value="PB">Paraíba</option>
-              <option value="PR">Paraná</option>
-              <option value="PE">Pernambuco</option>
-              <option value="PI">Piauí</option>
-              <option value="RJ">Rio de Janeiro</option>
-              <option value="RN">Rio Grande do Norte</option>
-              <option value="RS">Rio Grande do Sul</option>
-              <option value="RO">Rondônia</option>
-              <option value="RR">Roraima</option>
-              <option value="SC">Santa Catarina</option>
-              <option value="SP">São Paulo</option>
-              <option value="SE">Sergipe</option>
-              <option value="TO">Tocantins</option>
-            </select>
-            </div>
+              <div className="estado">
+                <label htmlFor="estado">Estado</label>
+                <input
+                  className="input"
+                  type="text"
+                  id="estado"
+                  placeholder="Ex: SP"
+                  value={formData.estado}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            <div className="pais-campo">
-            <label htmlFor="pais">País</label>
-            <select className="input" id="pais" onChange={handleChange}>
-              <option value="">Selecione o país</option>
-              <option value="AR">Argentina</option>
-              <option value="BO">Bolívia</option>
-              <option value="BR">Brasil</option>
-              <option value="CA">Canadá</option>
-              <option value="CL">Chile</option>
-              <option value="CO">Colômbia</option>
-              <option value="CR">Costa Rica</option>
-              <option value="CU">Cuba</option>
-              <option value="DO">República Dominicana</option>
-              <option value="EC">Equador</option>
-              <option value="SV">El Salvador</option>
-              <option value="GT">Guatemala</option>
-              <option value="HN">Honduras</option>
-              <option value="JM">Jamaica</option>
-              <option value="MX">México</option>
-              <option value="NI">Nicarágua</option>
-              <option value="PA">Panamá</option>
-              <option value="PY">Paraguai</option>
-              <option value="PE">Peru</option>
-              <option value="PR">Porto Rico</option>
-              <option value="UY">Uruguai</option>
-              <option value="US">Estados Unidos</option>
-              <option value="VE">Venezuela</option>
-            </select>
-            </div>
+              <div className="pais-campo">
+                <label htmlFor="pais">País</label>
+                <input
+                  className="input"
+                  type="text"
+                  id="pais"
+                  placeholder="Ex: Brasil"
+                  value={formData.pais}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
 
             <label htmlFor="cidade">Cidade</label>
@@ -295,6 +320,7 @@ export default function Cadastro() {
               placeholder="Nome da Cidade"
               value={formData.cidade}
               onChange={handleChange}
+              required
             />
 
             <label htmlFor="telefone">Telefone</label>
@@ -306,6 +332,7 @@ export default function Cadastro() {
               value={formData.telefone}
               onChange={handleTelefoneChange}
               maxLength={15}
+              required
             />
 
             <label htmlFor="senha">Senha</label>
@@ -318,10 +345,7 @@ export default function Cadastro() {
               onChange={handleChange}
             />
 
-            <button
-              type="submit"
-              className="register-button"
-            >
+            <button type="submit" className="register-button">
               <span>Cadastrar</span>
               <span className="arrow">→</span>
             </button>

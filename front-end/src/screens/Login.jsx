@@ -1,11 +1,10 @@
-import './Login.css'
-import Logo from '../assets/logo.png'
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react';
+import "./Login.css";
+import Logo from "../assets/logo.png";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 
 export default function Login() {
-
   const navigate = useNavigate();
 
   // function handleLogin(){
@@ -25,45 +24,45 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
-    try{
+    try {
       const response = await fetch("http://localhost:3001/api/auth/login", {
-        method : "POST",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json()
+      const data = await response.json();
 
-      if(!response.ok) {
-        alert(`${data.message}`)
+      if (!response.ok) {
+        alert(`${data.message}`);
         return;
       }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-      navigate("/dashboard")
-    } catch (error){
-      console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert(`Erro ao conectar com o servidor: ${error.message}`);
     }
   };
 
   return (
     <>
       <div className="login-container">
-
         <section className="left-panel">
           <div className="description">
-            <h1>Controle total <br/>
-              do seu  
+            <h1>
+              Controle total <br />
+              do seu
               <span> estoque.</span>
             </h1>
             <p>
-              Monitore entradas, saídas e reposições em tempo real.
-              Tome decisões com dados precisos e evite rupturas de estoque.
+              Monitore entradas, saídas e reposições em tempo real. Tome
+              decisões com dados precisos e evite rupturas de estoque.
             </p>
           </div>
         </section>
@@ -76,7 +75,14 @@ export default function Login() {
             <h3>Entre com suas credenciais para acessar o sistema</h3>
 
             <label htmlFor="email">Email</label>
-            <input className="input" type="email" id="email" placeholder="seuemail@empresa.com" onChange={handleChange} required/>
+            <input
+              className="input"
+              type="email"
+              id="email"
+              placeholder="seuemail@empresa.com"
+              onChange={handleChange}
+              required
+            />
             <label htmlFor="password">Senha</label>
             <div className="password-field">
               <input
@@ -103,24 +109,26 @@ export default function Login() {
                 <span>Manter conectado</span>
               </label>
 
-              <a href='/forgot-password' className="missing-password">
+              <a href="/forgot-password" className="missing-password">
                 Esqueci minha senha
               </a>
             </div>
 
-            <button type="submit" onClick={handleLogin} className="login-button">
+            <button
+              type="submit"
+              onClick={handleLogin}
+              className="login-button"
+            >
               <span>Entrar</span>
-              <span className='arrow'>→</span>
+              <span className="arrow">→</span>
             </button>
 
-            <p className='register-text'>
-              Não tem acesso? <a href='/register'>Cadastre-se</a>
+            <p className="register-text">
+              Não tem acesso? <a href="/register">Cadastre-se</a>
             </p>
-            
           </div>
         </section>
-
       </div>
     </>
-  )
+  );
 }

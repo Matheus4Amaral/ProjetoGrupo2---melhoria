@@ -18,7 +18,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #E6F2EC;
+  background-color: #e6f2ec;
 }
 
 /* Área Interna de Conteúdo */
@@ -36,7 +36,7 @@
 /* Cards Estilizados no Padrão do Stock (.list) */
 .fornecedor-card {
   width: 100%;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 6px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -44,7 +44,7 @@
 
 .fornecedor-card h3 {
   margin-bottom: 20px;
-  color: #104F3A;
+  color: #104f3a;
   font-family: Inter, sans-serif;
   font-size: 18px;
   font-weight: 700;
@@ -68,7 +68,7 @@
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #104F3A;
+  color: #104f3a;
   margin-bottom: 8px;
   font-family: Inter, sans-serif;
 }
@@ -84,7 +84,9 @@
   color: #374151;
   background: #fff;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .form-group input:focus,
@@ -127,25 +129,25 @@
 
 .fornecedores-table th {
   padding: 12px 16px;
-  border-bottom: 2px solid #E6F2EC;
+  border-bottom: 2px solid #e6f2ec;
   text-align: left;
   font-size: 14px;
   font-weight: 700;
-  color: #104F3A;
-  background-color: #F8FCFA;
+  color: #104f3a;
+  background-color: #f8fcfa;
   font-family: Inter, sans-serif;
 }
 
 .fornecedores-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid #E6F2EC;
+  border-bottom: 1px solid #e6f2ec;
   font-size: 14px;
   color: #374151;
   font-family: Inter, sans-serif;
 }
 
 .fornecedores-table tbody tr:hover {
-  background-color: #F0F9F5;
+  background-color: #f0f9f5;
 }
 
 /* Responsividade para Telas Menores */

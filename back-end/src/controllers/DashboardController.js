@@ -1,11 +1,13 @@
-import pool from '../config/database.js'
-import jwt from 'jsonwebtoken'
+import pool from "../config/database.js";
+import jwt from "jsonwebtoken";
 
 export const getDashboardData = async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Token não fornecido ou mal formatado" });
+    return res
+      .status(401)
+      .json({ message: "Token não fornecido ou mal formatado" });
   }
 
   const token = authHeader.split(" ")[1];
@@ -19,7 +21,7 @@ export const getDashboardData = async (req, res) => {
        FROM public.possui_estoque pe
        JOIN public.estoque e ON e.id_estoque = pe.id_estoque
        WHERE e.id_usuario = $1`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const totalSales = await pool.query(
@@ -27,14 +29,14 @@ export const getDashboardData = async (req, res) => {
        FROM public.possui_venda pv
        JOIN public.venda v ON v.id_venda = pv.id_venda
        WHERE v.id_usuario = $1`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const totalSuppliers = await pool.query(
       `SELECT COUNT(*) AS total
        FROM public.fornecedor
        WHERE id_usuario = $1`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const lowStock = await pool.query(
@@ -57,7 +59,7 @@ export const getDashboardData = async (req, res) => {
          AND pe.quantidade_estoque_atual <= pe.quantidade_estoque_total * 0.5
        ORDER BY pe.quantidade_estoque_atual ASC
        LIMIT 5`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const salesEvolution = await pool.query(
@@ -80,7 +82,7 @@ export const getDashboardData = async (req, res) => {
           ON pv.id_venda = v.id_venda
         GROUP BY dias.dia
         ORDER BY dias.dia`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const recentProducts = await pool.query(
@@ -88,7 +90,7 @@ export const getDashboardData = async (req, res) => {
        FROM public.produto
        WHERE id_usuario = $1
          AND data_cadastro >= current_date - interval '6 days'`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const recentSales = await pool.query(
@@ -96,7 +98,7 @@ export const getDashboardData = async (req, res) => {
        FROM public.venda
        WHERE id_usuario = $1
          AND data_venda >= current_date - interval '6 days'`,
-      [id_usuario]
+      [id_usuario],
     );
 
     const recentSuppliers = await pool.query(
@@ -104,7 +106,7 @@ export const getDashboardData = async (req, res) => {
        FROM public.fornecedor
        WHERE id_usuario = $1
          AND data_cadastro >= current_date - interval '6 days'`,
-      [id_usuario]
+      [id_usuario],
     );
 
     return res.status(200).json({
@@ -115,12 +117,12 @@ export const getDashboardData = async (req, res) => {
       salesEvolution: salesEvolution.rows,
       recentProducts: recentProducts.rows[0].total,
       recentSales: recentSales.rows[0].total,
-      recentSuppliers: recentSuppliers.rows[0].total
+      recentSuppliers: recentSuppliers.rows[0].total,
     });
   } catch (error) {
     return res.status(500).json({
-      message: 'Erro ao buscar dados do dashboard',
-      error: error.message
+      message: "Erro ao buscar dados do dashboard",
+      error: error.message,
     });
   }
 };
@@ -129,14 +131,20 @@ export const replacement = async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Token não fornecido ou mal formatado" });
+    return res
+      .status(401)
+      .json({ message: "Token não fornecido ou mal formatado" });
   }
 
   const token = authHeader.split(" ")[1];
   const { id_produto, id_estoque, quantidade_reposicao } = req.body;
 
-  if (id_produto == null || id_estoque == null || quantidade_reposicao == null) {
-    return res.status(400).json({ message: 'Dados inexistentes' });
+  if (
+    id_produto == null ||
+    id_estoque == null ||
+    quantidade_reposicao == null
+  ) {
+    return res.status(400).json({ message: "Dados inexistentes" });
   }
 
   try {
@@ -152,11 +160,15 @@ export const replacement = async (req, res) => {
          AND e.id_estoque = pe.id_estoque
          AND e.id_usuario = $4
        RETURNING pe.*`,
-      [quantidade_reposicao, id_produto, id_estoque, id_usuario]
+      [quantidade_reposicao, id_produto, id_estoque, id_usuario],
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: "Relação produto/estoque não encontrada para este usuário" });
+      return res
+        .status(404)
+        .json({
+          message: "Relação produto/estoque não encontrada para este usuário",
+        });
     }
 
     return res.status(200).json({
@@ -166,7 +178,7 @@ export const replacement = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Erro ao realizar reposição",
-      error: error.message
+      error: error.message,
     });
   }
 };

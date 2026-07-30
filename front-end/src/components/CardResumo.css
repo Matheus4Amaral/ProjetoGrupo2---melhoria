@@ -13,29 +13,26 @@
 }
 
 .card-titulo {
-  font-family: 'inter';
+  font-family: "inter";
   font-size: 20px;
 }
 
 .card-valor {
-  font-family: 'inter';
+  font-family: "inter";
   font-size: 26px;
 }
 
-.card-titulo{
-    font-family: 'inter';
-    font-size: 18px;
-    color: #5A7A6A;
-    margin-bottom: 12px;
+.card-titulo {
+  font-family: "inter";
+  font-size: 18px;
+  color: #5a7a6a;
+  margin-bottom: 12px;
 }
 
-.card-valor{
-  font-family: 'inter';
-  font-size: 18px; 
+.card-valor {
+  font-family: "inter";
+  font-size: 18px;
   margin-top: 16px;
-  color: #5A7A6A; 
+  color: #5a7a6a;
   font-weight: 600;
 }
-
-
-

@@ -6,7 +6,7 @@ export default function ReplacementModal({
   setOpenModal,
   product,
   onReplacement,
-  loadingReplacement
+  loadingReplacement,
 }) {
   const [quantidade, setQuantidade] = useState("");
 
@@ -32,7 +32,7 @@ export default function ReplacementModal({
       <div className="replacement-modal">
         <div className="replacement-header">
           <h2>Solicitar Reposição</h2>
-          <button className="close-button" onClick={()=> setOpenModal(false)}>
+          <button className="close-button" onClick={() => setOpenModal(false)}>
             ✕
           </button>
         </div>
@@ -41,11 +41,7 @@ export default function ReplacementModal({
           <div className="replacement-body">
             <div className="input-group">
               <label>Nome Produto</label>
-              <input
-                type="text"
-                value={product.nome}
-                readOnly
-              />
+              <input type="text" value={product.nome} readOnly />
             </div>
 
             <div className="input-group">

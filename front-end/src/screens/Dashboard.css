@@ -15,7 +15,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #E6F2EC;
+  background-color: #e6f2ec;
 }
 
 .dashboard-informations {
@@ -43,13 +43,13 @@
 .dashboard-cards h2 {
   font-size: 14px;
   font-weight: 500;
-  color: #5A7A6A;
+  color: #5a7a6a;
 }
 
 .dashboard-cards span {
   font-size: 14px;
   font-weight: 500;
-  color: #5A7A6A;
+  color: #5a7a6a;
 }
 
 /* Padronização de borda e sombra sutil em todos os blocos */
@@ -91,7 +91,7 @@
 .chart-title-group h3,
 .stock-title-group h3 {
   margin: 0;
-  color: #104F3A;
+  color: #104f3a;
   font-size: 18px;
   font-weight: 700;
 }
@@ -99,7 +99,7 @@
 .chart-title-group p,
 .stock-title-group p {
   margin: 4px 0 0 0;
-  color: #5A7A6A;
+  color: #5a7a6a;
   font-size: 13px;
 }
 
@@ -107,14 +107,14 @@
   display: flex;
   align-items: center;
   font-size: 13px;
-  color: #5A7A6A;
+  color: #5a7a6a;
   font-weight: 500;
 }
 
 .legend-dot {
   width: 10px;
   height: 10px;
-  background-color: #00875A;
+  background-color: #00875a;
   border-radius: 50%;
   margin-right: 8px;
 }
@@ -163,7 +163,7 @@ hr {
 
 .list-header span {
   padding: 0;
-  color: #5A7A6A;
+  color: #5a7a6a;
   font-size: 13px;
   font-weight: 500;
 }
@@ -191,7 +191,7 @@ hr {
 
 .product-info h3 {
   font-size: 12px;
-  color: #9CA3AF;
+  color: #9ca3af;
   margin: 4px 0 0;
   font-weight: 500;
 }
@@ -207,7 +207,7 @@ hr {
 .stock-bar {
   width: 120px;
   height: 6px;
-  background: #E5E7EB;
+  background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -219,7 +219,7 @@ hr {
 
 .product-stock span {
   font-size: 12px;
-  color: #6B7280;
+  color: #6b7280;
   min-width: 34px;
   padding: 0;
 }
@@ -251,7 +251,9 @@ hr {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .replace-btn:hover {

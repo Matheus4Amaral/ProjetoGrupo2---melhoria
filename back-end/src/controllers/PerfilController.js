@@ -1,6 +1,6 @@
-import pool from '../config/database.js'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import pool from "../config/database.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const getUser = async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -35,7 +35,7 @@ export const getUser = async (req, res) => {
         bairro
       FROM public.usuario
       WHERE id_usuario = $1`,
-      [decoded.id_usuario]
+      [decoded.id_usuario],
     );
 
     if (result.rows.length === 0) {
@@ -46,7 +46,7 @@ export const getUser = async (req, res) => {
   } catch (error) {
     return res.status(401).json({
       message: "Token inválido ou expirado",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -87,7 +87,20 @@ export const updateUser = async (req, res) => {
            rua = $5, numero = $6, cep = $7, cidade = $8, bairro = $9, pais = $10, estado = $11
        WHERE id_usuario = $12
        RETURNING *`,
-      [nome_usuario, nome_empresa, cpf_cnpj, telefone, rua, numero, cep, cidade, bairro, pais, estado, decoded.id_usuario]
+      [
+        nome_usuario,
+        nome_empresa,
+        cpf_cnpj,
+        telefone,
+        rua,
+        numero,
+        cep,
+        cidade,
+        bairro,
+        pais,
+        estado,
+        decoded.id_usuario,
+      ],
     );
 
     if (result.rows.length === 0) {
@@ -96,12 +109,12 @@ export const updateUser = async (req, res) => {
 
     return res.status(200).json({
       message: "Perfil atualizado com sucesso",
-      usuario: result.rows[0]
+      usuario: result.rows[0],
     });
   } catch (error) {
     return res.status(500).json({
       message: "Erro ao atualizar perfil",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -123,7 +136,7 @@ export const changePassword = async (req, res) => {
 
   if (!senhaAtual || !novaSenha) {
     return res.status(400).json({
-      message: "Senha atual e nova senha são obrigatórias"
+      message: "Senha atual e nova senha são obrigatórias",
     });
   }
 
@@ -134,7 +147,7 @@ export const changePassword = async (req, res) => {
       `SELECT id_usuario, senha
        FROM public.usuario
        WHERE id_usuario = $1`,
-      [decoded.id_usuario]
+      [decoded.id_usuario],
     );
 
     if (result.rows.length === 0) {
@@ -151,7 +164,7 @@ export const changePassword = async (req, res) => {
 
     if (senhaAtual === novaSenha) {
       return res.status(400).json({
-        message: "A nova senha não pode ser igual à senha atual"
+        message: "A nova senha não pode ser igual à senha atual",
       });
     }
 
@@ -161,16 +174,16 @@ export const changePassword = async (req, res) => {
       `UPDATE public.usuario
        SET senha = $1
        WHERE id_usuario = $2`,
-      [hashedNovaSenha, decoded.id_usuario]
+      [hashedNovaSenha, decoded.id_usuario],
     );
 
     return res.status(200).json({
-      message: "Senha alterada com sucesso"
+      message: "Senha alterada com sucesso",
     });
   } catch (error) {
     return res.status(401).json({
       message: "Token inválido ou expirado",
-      error: error.message
+      error: error.message,
     });
   }
 };

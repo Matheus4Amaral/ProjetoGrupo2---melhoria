@@ -28,19 +28,25 @@ export default function Profile() {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        setMensagem({ tipo: "erro", texto: "Sessão expirada. Faça login novamente." });
+        setMensagem({
+          tipo: "erro",
+          texto: "Sessão expirada. Faça login novamente.",
+        });
         setLoading(false);
         return;
       }
 
       try {
-        const response = await fetch("http://localhost:3001/api/perfil/get-user", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+        const response = await fetch(
+          "http://localhost:3001/api/perfil/get-user",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (!response.ok) {
           throw new Error("Erro ao carregar dados do perfil");
@@ -87,21 +93,30 @@ export default function Profile() {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch("http://localhost:3001/api/perfil/update-user", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "http://localhost:3001/api/perfil/update-user",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setMensagem({ tipo: "sucesso", texto: "Perfil atualizado com sucesso!" });
+        setMensagem({
+          tipo: "sucesso",
+          texto: "Perfil atualizado com sucesso!",
+        });
       } else {
-        setMensagem({ tipo: "erro", texto: data.message || "Erro ao atualizar perfil." });
+        setMensagem({
+          tipo: "erro",
+          texto: data.message || "Erro ao atualizar perfil.",
+        });
       }
     } catch (err) {
       setMensagem({ tipo: "erro", texto: "Erro ao conectar com o servidor." });
@@ -136,13 +151,17 @@ export default function Profile() {
 
         <main className="profile-main">
           {mensagem.texto && (
-            <div className={`alert ${mensagem.tipo}`} style={{
-              padding: "10px",
-              marginBottom: "15px",
-              borderRadius: "5px",
-              backgroundColor: mensagem.tipo === "sucesso" ? "#d4edda" : "#f8d7da",
-              color: mensagem.tipo === "sucesso" ? "#155724" : "#721c24"
-            }}>
+            <div
+              className={`alert ${mensagem.tipo}`}
+              style={{
+                padding: "10px",
+                marginBottom: "15px",
+                borderRadius: "5px",
+                backgroundColor:
+                  mensagem.tipo === "sucesso" ? "#d4edda" : "#f8d7da",
+                color: mensagem.tipo === "sucesso" ? "#155724" : "#721c24",
+              }}
+            >
               {mensagem.texto}
             </div>
           )}
@@ -283,7 +302,6 @@ export default function Profile() {
               </div>
 
               <div className="buttons">
-
                 <button type="submit" className="save">
                   Salvar Alterações
                 </button>

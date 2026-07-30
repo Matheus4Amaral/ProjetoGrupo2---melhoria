@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;          /* melhor que 15% pra sidebar fixa */
+  width: 260px; /* melhor que 15% pra sidebar fixa */
   height: 100vh;
   overflow-y: auto;
 
@@ -83,7 +83,7 @@
 }
 
 .logout-wrapper {
-  padding-top:18px;
+  padding-top: 18px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -115,7 +115,7 @@
   appearance: none;
   border: none;
   background: none;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .user-avatar {

@@ -13,7 +13,7 @@ export default function Sale() {
   const [stats, setStats] = useState({
     totalVendas: 0,
     pedidosHoje: 0,
-    ticketMedio: 0
+    ticketMedio: 0,
   });
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function Sale() {
       setVendas(data);
       calcularEstatisticas(data);
     } catch (err) {
-      console.error('Erro ao carregar vendas:', err);
+      console.error("Erro ao carregar vendas:", err);
     }
   };
 
@@ -35,21 +35,24 @@ export default function Sale() {
       setStats({
         totalVendas: 0,
         pedidosHoje: 0,
-        ticketMedio: 0
+        ticketMedio: 0,
       });
       return;
     }
 
     // Calcular total de vendas
-    const total = vendasData.reduce((acc, venda) => acc + parseFloat(venda.valor_venda || 0), 0);
+    const total = vendasData.reduce(
+      (acc, venda) => acc + parseFloat(venda.valor_venda || 0),
+      0,
+    );
     // Calcular ticket médio
     const media = total / vendasData.length;
 
     // Contar pedidos de hoje
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    
-    const pedidosHoje = vendasData.filter(venda => {
+
+    const pedidosHoje = vendasData.filter((venda) => {
       const dataVenda = new Date(venda.data_venda);
       dataVenda.setHours(0, 0, 0, 0);
       return dataVenda.getTime() === hoje.getTime();
@@ -58,14 +61,14 @@ export default function Sale() {
     setStats({
       totalVendas: total,
       pedidosHoje: pedidosHoje,
-      ticketMedio: media
+      ticketMedio: media,
     });
   };
 
   const formatarMoeda = (valor) => {
-    return valor.toLocaleString('pt-BR', { 
-      style: 'currency', 
-      currency: 'BRL' 
+    return valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     });
   };
 
@@ -89,16 +92,22 @@ export default function Sale() {
       <div className="sale-container">
         <SideBar />
         <div className="sale-panel">
-          <Header 
-            title="Painel de Vendas" 
+          <Header
+            title="Painel de Vendas"
             buttonText="Novo Pedido"
             onButtonClick={handleNovoPedido}
           />
           <main className="sale-main">
             <div className="sale-cards">
-              <CardResumo title="Total de Vendas" value={formatarMoeda(stats.totalVendas)}/>
-              <CardResumo title="Pedidos Hoje" value={stats.pedidosHoje}/>
-              <CardResumo title="Ticket Médio" value={formatarMoeda(stats.ticketMedio)}/>
+              <CardResumo
+                title="Total de Vendas"
+                value={formatarMoeda(stats.totalVendas)}
+              />
+              <CardResumo title="Pedidos Hoje" value={stats.pedidosHoje} />
+              <CardResumo
+                title="Ticket Médio"
+                value={formatarMoeda(stats.ticketMedio)}
+              />
             </div>
             <TabelaVendas onVendaDeleted={handleVendaDeleted} />
           </main>

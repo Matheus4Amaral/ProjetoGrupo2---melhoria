@@ -16,10 +16,10 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #E6F2EC;
+  background-color: #e6f2ec;
 }
 
-.sale-main{
+.sale-main {
   width: 100%;
   max-width: 1400px;
   margin: 0;
@@ -27,10 +27,10 @@
   box-sizing: border-box;
 }
 
-.sale-cards{
+.sale-cards {
   display: grid;
   justify-items: center;
-  grid-template-columns: repeat(3, 1fr); 
+  grid-template-columns: repeat(3, 1fr);
   gap: 70px;
   margin-bottom: 40px;
   width: 100%;
