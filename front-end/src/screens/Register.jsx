@@ -166,8 +166,36 @@ export default function Cadastro() {
         return;
       }
 
-      toast.success("Cadastro realizado com sucesso!")
-      navigate("/")
+      // Faz login automaticamente
+    const loginResponse = await fetch("http://localhost:3001/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.senha,
+      }),
+    });
+
+    const loginData = await loginResponse.json();
+
+    if (!loginResponse.ok) {
+      toast.success("Cadastro realizado com sucesso!");
+      navigate("/");
+      return;
+    }
+
+    localStorage.setItem("token", loginData.token);
+    localStorage.setItem(
+      "usuario",
+      JSON.stringify(loginData.usuario)
+    );
+
+    toast.success("Cadastro realizado! Bem-vindo(a)!");
+
+    navigate("/dashboard");
+
     } catch (error){
       console.error("Erro ao realizar cadastro:", error)
       toast.error("Não foi possível conectar ao servidor. Verifique se o back-end está funcionando.")
