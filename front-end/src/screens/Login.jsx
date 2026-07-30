@@ -101,7 +101,7 @@ export default function Login() {
             <div className="form-options">
               <label htmlFor="remember" className="remember-me">
                 <input type="checkbox" id="remember" />
-                <span>Manter conectado</span>
+                <span className="remenber-span">Manter conectado</span>
               </label>
 
               <a href='/forgot-password' className="missing-password">

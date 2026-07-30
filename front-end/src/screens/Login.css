@@ -135,7 +135,14 @@
   margin: 0;
   accent-color: #0f8b5f;
   cursor: pointer;
+  margin-right: 5px;
 }
+
+.remenber-span {
+  position: relative;
+  bottom: 2px;
+}
+
 
 .missing-password {
   border: none;
