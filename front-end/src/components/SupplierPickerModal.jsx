@@ -115,13 +115,16 @@ export default function SupplierPickerModal({ isOpen, onClose, onSelect }) {
                     <div className="supplier-picker-item-info">
                       <span className="supplier-picker-item-nome">
                         {fornecedor.nome_fornecedor}
+                        <span className={`tipo-badge ${tipo.className}`}>
+                          {tipo.label}
+                        </span>
                       </span>
                       <span className="supplier-picker-item-detalhe">
                         {fornecedor.email || fornecedor.documento || "—"}
                       </span>
                     </div>
-                    <span className={`tipo-badge ${tipo.className}`}>
-                      {tipo.label}
+                    <span className="supplier-picker-item-selecionar">
+                      Selecionar
                     </span>
                   </button>
                 );
