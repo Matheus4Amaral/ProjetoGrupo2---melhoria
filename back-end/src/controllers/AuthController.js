@@ -12,7 +12,7 @@ export const login = async (req, res) => {
       )
 
       if(result.rows.length === 0){
-        return res.status(404).json({ message: 'Usuário não encontrado' });
+        return res.status(404).json({ message: 'Usuario ou senha incorretos.' });
       }
 
       const usuario = result.rows[0];
@@ -20,7 +20,7 @@ export const login = async (req, res) => {
       const senhaCorreta = await bcrypt.compare (password, usuario.senha)
 
       if(!senhaCorreta){
-        return res.status(401).json({ message: 'Senha incorreta' })
+        return res.status(401).json({ message: 'Usuario ou senha incorretos.' })
       }
 
       const token = jwt.sign(

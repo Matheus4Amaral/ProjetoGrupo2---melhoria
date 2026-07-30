@@ -31,6 +31,11 @@ export default function Cadastro() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handlePaisChange = (e) => {
+  const { value } = e.target;
+  setFormData((prev) => ({ ...prev, pais: value, estado: "" }));
+  };
+
   const handleCpfCnpjChange = (e) => {
     let valor = e.target.value.replace(/\D/g, "");
     if (valor.length > 14) valor = valor.slice(0, 14);
@@ -224,6 +229,7 @@ export default function Cadastro() {
             <div className="estado-pais-linha">
             <div className="estado">
             <label htmlFor="estado">Estado</label>
+            {formData.pais==="" || formData.pais ==="BR"?(
             <select className="input" id="estado" onChange={handleChange}>
               <option value="">Selecione o estado</option>
               <option value="AC">Acre</option>
@@ -254,11 +260,16 @@ export default function Cadastro() {
               <option value="SE">Sergipe</option>
               <option value="TO">Tocantins</option>
             </select>
+            ) : (
+            <input className="input" type="text" id="estado"
+            placeholder="Estado / Província / Região"
+            value={formData.estado}
+            onChange={handleChange} />)}
             </div>
 
             <div className="pais-campo">
             <label htmlFor="pais">País</label>
-            <select className="input" id="pais" onChange={handleChange}>
+            <select className="input" id="pais" value={formData.pais} onChange={handlePaisChange}>
               <option value="">Selecione o país</option>
               <option value="AR">Argentina</option>
               <option value="BO">Bolívia</option>
