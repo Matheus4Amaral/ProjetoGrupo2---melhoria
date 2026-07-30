@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Supplier.css";
 
-import SideBar from "../components/SideBar";
-import Header from "../components/Header";
+import AppShell from "../components/AppShell";
 import CardResumo from "../components/CardResumo";
 import TabelaFornecedores from "../components/TabelaFornecedores";
 import RegisterSupplier from "../components/RegisterSupplier";
@@ -63,7 +62,8 @@ export default function Supplier() {
   }
 
   useEffect(() => {
-    fetchFornecedores();
+    void Promise.resolve().then(fetchFornecedores);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ── cards de resumo ── */
@@ -97,16 +97,12 @@ export default function Supplier() {
 
   return (
     <>
-      <div className="supplier-page-container">
-        <SideBar />
-        <div className="supplier-page-panel">
-          <Header
+      <AppShell
             title="Fornecedores"
             buttonText="Novo Fornecedor"
             onButtonClick={handleNovoFornecedor}
-          />
-
-          <main className="supplier-page-main">
+            contentClassName="supplier-page-main"
+          >
             {/* Cards de resumo */}
             <div className="supplier-page-cards">
               <CardResumo
@@ -130,9 +126,7 @@ export default function Supplier() {
               onReload={fetchFornecedores}
               onEditFornecedor={handleEditFornecedor}
             />
-          </main>
-        </div>
-      </div>
+      </AppShell>
 
       {/* Modal de cadastro / edição */}
       <RegisterSupplier

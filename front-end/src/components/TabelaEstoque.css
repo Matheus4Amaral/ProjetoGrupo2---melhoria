@@ -23,3 +23,7 @@
   color: #166534;
   background-color: #dcfce7;
 }
+
+.tabela-estoque table {
+  min-width: 920px;
+}

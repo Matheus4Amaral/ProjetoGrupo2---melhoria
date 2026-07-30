@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
+import './components/ModalResponsive.css'
 
 import Login from './screens/Login.jsx'
 import Register from './screens/Register.jsx'

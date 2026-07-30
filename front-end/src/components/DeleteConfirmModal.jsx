@@ -1,45 +1,57 @@
+import { LuTrash2 } from "react-icons/lu";
 import "./DeleteConfirmModal.css";
 
-export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, loading }) {
-    if (!isOpen) return null;
+export default function DeleteConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  loading,
+}) {
+  if (!isOpen) return null;
 
-    return (
-        <div className="delete-modal-overlay" onClick={onClose}>
-            <div className="delete-modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="delete-modal-header">
-                    <h2>Confirmar Exclusão</h2>
-                    <button className="delete-close-btn" onClick={onClose}>✕</button>
-                </div>
-
-                <div className="delete-modal-body">
-                    <div className="warning-icon">⚠️</div>
-                    <p className="warning-text">
-                        Deseja mesmo excluir esse pedido?
-                    </p>
-                    <p className="warning-subtext">
-                        Se excluir, não haverá como recuperá-lo!
-                    </p>
-                </div>
-
-                <div className="delete-modal-footer">
-                    <button 
-                        type="button" 
-                        onClick={onClose} 
-                        className="delete-btn-cancelar"
-                        disabled={loading}
-                    >
-                        Cancelar
-                    </button>
-                    <button 
-                        type="button" 
-                        onClick={onConfirm} 
-                        className="delete-btn-confirmar"
-                        disabled={loading}
-                    >
-                        {loading ? 'Excluindo...' : 'Confirmar Exclusão'}
-                    </button>
-                </div>
-            </div>
+  return (
+    <div
+      className="delete-modal-overlay"
+      onClick={loading ? undefined : onClose}
+    >
+      <div
+        className="delete-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+        aria-describedby="delete-modal-description"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="delete-modal-icon">
+          <LuTrash2 aria-hidden="true" />
         </div>
-    );
+
+        <h2 id="delete-modal-title">Excluir venda?</h2>
+
+        <p id="delete-modal-description">
+          Esta venda será removida permanentemente e não poderá ser recuperada.
+        </p>
+
+        <div className="delete-modal-buttons">
+          <button
+            type="button"
+            className="delete-btn-cancelar"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            className="delete-btn-confirmar"
+            onClick={onConfirm}
+            disabled={loading}
+          >
+            {loading ? "Excluindo..." : "Excluir"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

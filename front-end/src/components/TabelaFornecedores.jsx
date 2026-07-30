@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import "./DataTable.css";
 import "./TabelaFornecedores.css";
 import { useAlert } from "../contexts/AlertContext";
 
@@ -78,7 +79,7 @@ export default function TabelaFornecedores({
   }
 
   return (
-    <div className="tabela-fornecedores">
+    <div className="data-table-card tabela-fornecedores">
       <h3 className="tabela-titulo">Lista de Fornecedores</h3>
 
       {/* Filtros */}

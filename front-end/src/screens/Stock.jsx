@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Stock.css";
-import SideBar from "../components/SideBar";
-import Header from "../components/Header";
-import CardResumo from "../components/cardResumo";
+import AppShell from "../components/AppShell";
+import CardResumo from "../components/CardResumo";
 import TabelaEstoque from "../components/TabelaEstoque";
 import ItemModal from "../components/ItemModal";
 
@@ -113,7 +112,8 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   }
 
   useEffect(() => {
-    fetchProdutosEstoque();
+    void Promise.resolve().then(fetchProdutosEstoque);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const totalProdutos = produtos.length;
@@ -122,19 +122,15 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
 
   return (
     <>
-      <div className="stock-container">
-        <SideBar />
-        <div className="stock-panel">
-          <Header
+      <AppShell
             // title="Estoque"
             title={estoqueAtual ? `Estoque: ${estoqueAtual.descricao}` : "Estoque"}
             // Se ainda não existe estoque cadastrado, o botão vira "Cadastrar Estoque".
             // Se já existe, o botão volta a ser "Novo Item" normalmente.
             buttonText={estoqueAtual ? "Novo Item" : "Cadastrar Estoque"}
             onButtonClick={estoqueAtual ? handleNovoItem : () => setIsStockModalOpen(true)}
-          />
-
-          <main className="stock-main">
+            contentClassName="stock-main"
+          >
             <div className="stock-cards">
               <CardResumo
                 title="Produtos Cadastrados"
@@ -158,9 +154,7 @@ const [isStockModalOpen, setIsStockModalOpen] = useState(false);
               onViewItem={handleVisualizarItem}
               onEditItem={handleEditarItem}
             />
-          </main>
-        </div>
-      </div>
+      </AppShell>
 
       <ItemModal
         isOpen={isModalOpen}

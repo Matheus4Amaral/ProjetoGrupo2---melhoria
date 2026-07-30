@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import "./Sale.css";
-import SideBar from "../components/SideBar";
 import TabelaVendas from "../components/TabelaVendas";
-import Header from "../components/Header";
-import CardResumo from "../components/cardResumo";
+import AppShell from "../components/AppShell";
+import CardResumo from "../components/CardResumo";
 import OrderModal from "../components/OrderModal";
 import { saleService } from "../services/saleService";
 
 export default function Sale() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [vendas, setVendas] = useState([]);
   const [stats, setStats] = useState({
     totalVendas: 0,
     pedidosHoje: 0,
@@ -17,18 +15,18 @@ export default function Sale() {
   });
 
   useEffect(() => {
-    loadVendas();
+    void Promise.resolve().then(loadVendas);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadVendas = async () => {
+  async function loadVendas() {
     try {
       const data = await saleService.getAll();
-      setVendas(data);
       calcularEstatisticas(data);
     } catch (err) {
       console.error('Erro ao carregar vendas:', err);
     }
-  };
+  }
 
   const calcularEstatisticas = (vendasData) => {
     if (!vendasData || vendasData.length === 0) {
@@ -86,24 +84,19 @@ export default function Sale() {
 
   return (
     <>
-      <div className="sale-container">
-        <SideBar />
-        <div className="sale-panel">
-          <Header 
+      <AppShell
             title="Painel de Vendas" 
             buttonText="Novo Pedido"
             onButtonClick={handleNovoPedido}
-          />
-          <main className="sale-main">
+            contentClassName="sale-main"
+          >
             <div className="sale-cards">
               <CardResumo title="Total de Vendas" value={formatarMoeda(stats.totalVendas)}/>
               <CardResumo title="Pedidos Hoje" value={stats.pedidosHoje}/>
               <CardResumo title="Ticket Médio" value={formatarMoeda(stats.ticketMedio)}/>
             </div>
             <TabelaVendas onVendaDeleted={handleVendaDeleted} />
-          </main>
-        </div>
-      </div>
+      </AppShell>
       <OrderModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </>
   );

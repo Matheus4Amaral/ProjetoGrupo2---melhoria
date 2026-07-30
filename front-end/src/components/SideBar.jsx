@@ -31,7 +31,7 @@ function getCachedUser() {
     }
 }
 
-function SideBar() {
+function SideBar({ isOpen = false, onClose = () => {} }) {
     const navigate = useNavigate();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [userData, setUserData] = useState(getCachedUser);
@@ -97,7 +97,11 @@ function SideBar() {
 
     return (
         <>
-            <aside className="sidebar" aria-label="Menu principal">
+            <aside
+                id="main-sidebar"
+                className={`sidebar ${isOpen ? "is-open" : ""}`}
+                aria-label="Menu principal"
+            >
                 <div className="sidebar-top">
                     <div className="sidebar-brand">
                         <img src={Logo} alt="StockControl" className="sidebar-logo" />
@@ -108,6 +112,7 @@ function SideBar() {
 
                         <NavLink
                             to="/dashboard"
+                            onClick={onClose}
                             className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
                         >
                             <LuLayoutDashboard className="nav-icon" aria-hidden="true" />
@@ -116,6 +121,7 @@ function SideBar() {
 
                         <NavLink
                             to="/stock"
+                            onClick={onClose}
                             className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
                         >
                             <LuBoxes className="nav-icon" aria-hidden="true" />
@@ -124,6 +130,7 @@ function SideBar() {
 
                         <NavLink
                             to="/sale"
+                            onClick={onClose}
                             className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
                         >
                             <LuShoppingCart className="nav-icon" aria-hidden="true" />
@@ -132,6 +139,7 @@ function SideBar() {
 
                         <NavLink
                             to="/supplier"
+                            onClick={onClose}
                             className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
                         >
                             <LuTruck className="nav-icon" aria-hidden="true" />
@@ -144,7 +152,10 @@ function SideBar() {
                     <button
                         type="button"
                         className="user-box"
-                        onClick={() => navigate("/profile")}
+                        onClick={() => {
+                            onClose();
+                            navigate("/profile");
+                        }}
                         aria-label="Abrir meu perfil"
                     >
                         <div className="user-avatar">{getIniciais(userData.nome_usuario)}</div>

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Profile.css";
 
-import SideBar from "../components/SideBar";
-import Header from "../components/Header";
+import AppShell from "../components/AppShell";
 
 export default function Profile() {
   const [formData, setFormData] = useState({
@@ -119,24 +118,14 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="profile-container">
-        <SideBar />
-        <div className="profile-panel">
-          <Header title="Meu Perfil" />
-          <p style={{ padding: "20px" }}>Carregando dados do perfil...</p>
-        </div>
-      </div>
+      <AppShell title="Meu Perfil" contentClassName="profile-main">
+        <p>Carregando dados do perfil...</p>
+      </AppShell>
     );
   }
 
   return (
-    <div className="profile-container">
-      <SideBar />
-
-      <div className="profile-panel">
-        <Header title="Meu Perfil" />
-
-        <main className="profile-main">
+    <AppShell title="Meu Perfil" contentClassName="profile-main">
           {mensagem.texto && (
             <div className={`alert ${mensagem.tipo}`} style={{
               padding: "10px",
@@ -292,8 +281,6 @@ export default function Profile() {
               </div>
             </div>
           </form>
-        </main>
-      </div>
-    </div>
+    </AppShell>
   );
 }

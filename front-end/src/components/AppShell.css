@@ -1,0 +1,57 @@
+.app-shell {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-page);
+}
+
+.app-shell-panel {
+  width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell-main {
+  width: min(100%, calc(var(--content-max-width) + (var(--page-padding) * 2)));
+  margin: 0 auto;
+  padding: var(--page-padding);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .app-shell-main {
+    --page-padding: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell-panel {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .app-shell-main {
+    --page-padding: 16px;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 190;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: rgba(5, 24, 17, 0.48);
+    backdrop-filter: blur(2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .app-shell-main {
+    --page-padding: 12px;
+  }
+}

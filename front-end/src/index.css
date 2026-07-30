@@ -1,5 +1,16 @@
 :root {
   font-family: 'Inter', sans-serif;
+  --sidebar-width: 220px;
+  --content-max-width: 1160px;
+  --page-padding: 32px;
+  --color-page: #e6f2ec;
+  --color-surface: #ffffff;
+  --color-heading: #104f3a;
+  --color-text-muted: #5a7a6a;
+  --color-border: #eaeaea;
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --shadow-surface: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -17,6 +28,9 @@ body,
 
 body {
   font-family: 'Inter', sans-serif;
+  color: #1f2937;
+  background: var(--color-page);
+  overflow-x: hidden;
 }
 
 button,
@@ -24,4 +38,9 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+:where(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid #0f8b5f;
+  outline-offset: 2px;
 }

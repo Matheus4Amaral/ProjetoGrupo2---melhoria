@@ -1,18 +1,47 @@
 .page-header {
   width: 100%;
-  height: 72px;
+  min-height: 72px;
   background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 0 32px;
   border-bottom: 1px solid #e9efea;
 }
 
+.page-header-title-group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .page-title {
+  margin: 0;
   font-size: 20px;
   font-weight: 700;
   color: #184d3b;
+}
+
+.mobile-menu-button {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: #ffffff;
+  color: var(--color-heading);
+  cursor: pointer;
+}
+
+.mobile-menu-button svg {
+  width: 21px;
+  height: 21px;
 }
 
 .header-button {
@@ -37,4 +66,38 @@
 .button-icon {
   font-size: 18px;
   font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    min-height: 64px;
+    padding: 10px 16px;
+  }
+
+  .mobile-menu-button {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header.has-action {
+    flex-wrap: wrap;
+    padding: 10px 12px 12px;
+  }
+
+  .page-header.has-action .page-header-title-group {
+    width: 100%;
+  }
+
+  .page-header.has-action .header-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-title {
+    overflow: hidden;
+    font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

@@ -60,12 +60,12 @@
   line-height: 1.7;
 }
 
-.logo {
+.register-container .logo {
   width: 190px;
   margin-bottom: 24px;
 }
 
-.login-form {
+.register-container .login-form {
   width: 100%;
   max-width: 420px;
   min-width: 0;
@@ -74,26 +74,26 @@
   text-align: left;
 }
 
-.login-form > h2,
-.login-form > h3,
-.login-form > label,
-.login-form > .input,
-.login-form > .rua-numero-linha,
-.login-form > .bairro-cep-linha,
-.login-form > .estado-pais-linha,
-.login-form > .register-button,
-.login-form > .register-text {
+.register-container .login-form > h2,
+.register-container .login-form > h3,
+.register-container .login-form > label,
+.register-container .login-form > .input,
+.register-container .login-form > .rua-numero-linha,
+.register-container .login-form > .bairro-cep-linha,
+.register-container .login-form > .estado-pais-linha,
+.register-container .login-form > .register-button,
+.register-container .login-form > .register-text {
   width: 100%;
 }
 
-.login-form h2 {
+.register-container .login-form h2 {
   color: #0d2b20;
   font-size: 34px;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
-.login-form h3 {
+.register-container .login-form h3 {
   font-size: 14px;
   color: #5a7a6a;
   font-weight: 400;
@@ -101,7 +101,7 @@
   margin-bottom: 20px;
 }
 
-.login-form label {
+.register-container .login-form label {
   display: block;
   width: 100%;
   font-size: 14px;
@@ -110,7 +110,7 @@
   margin-bottom: 8px;
 }
 
-.input {
+.register-container .input {
   outline: none;
   width: 100%;
   max-width: 100%;
@@ -124,11 +124,11 @@
   color: #1b1b1b;
 }
 
-.input::placeholder {
+.register-container .input::placeholder {
   color: #b3b3b3;
 }
 
-.input:focus {
+.register-container .input:focus {
   border-color: #0f8b5f;
 }
 
@@ -231,7 +231,7 @@
     padding: 28px 16px 24px;
   }
 
-  .login-form {
+  .register-container .login-form {
     max-width: 420px;
   }
 }
@@ -262,7 +262,7 @@
   }
 }
 
-.error-message {
+.register-container .error-message {
   display: block;
   color: #dc2626;
   font-size: 0.85rem;
@@ -270,22 +270,22 @@
   margin-bottom: 12px;
 }
 
-.input-error {
+.register-container .input-error {
   border: 1px solid #dc2626 !important;
 }
 
-.password-field {
+.register-container .password-field {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.password-field .input {
+.register-container .password-field .input {
   width: 100%;
   padding-right: 45px;
 }
 
-.toggle-password {
+.register-container .toggle-password {
   position: absolute;
   right: 12px;
   background: none;
@@ -299,6 +299,6 @@
   padding-bottom: 13px;
 }
 
-.toggle-password:hover {
+.register-container .toggle-password:hover {
   color: #0f8b6d;
-}
+}

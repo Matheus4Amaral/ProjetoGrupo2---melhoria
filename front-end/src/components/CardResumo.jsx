@@ -1,11 +1,20 @@
-import React from 'react';
 import './CardResumo.css';
 
-export default function CardResumo({ title, value }) {
+export default function CardResumo({
+    title,
+    value,
+    icon,
+    supportingText,
+    tone = "neutral",
+}) {
     return(
-        <div className="card-resumo">
+        <article className={`card-resumo card-resumo--${tone}`}>
+            {icon && <div className="card-resumo-icon">{icon}</div>}
             <h3 className="card-titulo">{title}</h3>
             <p className="card-valor">{value ?? 0}</p>
-        </div>
+            {supportingText && (
+                <p className="card-supporting-text">{supportingText}</p>
+            )}
+        </article>
     );
 }

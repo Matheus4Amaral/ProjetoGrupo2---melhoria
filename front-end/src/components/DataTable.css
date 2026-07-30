@@ -1,0 +1,213 @@
+.data-table-card {
+  width: 100%;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-surface);
+}
+
+.data-table-card .tabela-titulo {
+  margin: 0 0 4px;
+  color: var(--color-heading);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.data-table-card .filtros-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 0 20px;
+}
+
+.data-table-card .filtro-busca,
+.data-table-card .filtro-select {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius-control);
+  background: #ffffff;
+}
+
+.data-table-card .filtro-busca {
+  width: min(100%, 480px);
+}
+
+.data-table-card .filtro-busca input,
+.data-table-card .filtro-select select {
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #374151;
+  font: inherit;
+}
+
+.data-table-card .filtro-busca input {
+  width: 100%;
+}
+
+.data-table-card .filtro-select select {
+  cursor: pointer;
+}
+
+.data-table-card .filtro-icon {
+  flex-shrink: 0;
+}
+
+.data-table-card .tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.data-table-card table {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.data-table-card th {
+  padding: 15px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.data-table-card td {
+  padding: 15px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-table-card tbody tr:hover {
+  background: #f7faf8;
+}
+
+.data-table-card .acoes-container {
+  min-width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.data-table-card .btn-acao {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+}
+
+.data-table-card .btn-acao:hover {
+  background: #eef4f0;
+}
+
+.data-table-card .btn-acao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.data-table-card .empty-state {
+  padding: 32px 0;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.data-table-card .paginacao-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 20px 0 0;
+}
+
+.data-table-card .btn-paginacao,
+.data-table-card .btn-numero-pagina {
+  min-width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius-control);
+  background: #ffffff;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.data-table-card .btn-paginacao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.data-table-card .paginas-numeros {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.data-table-card .btn-numero-pagina.ativo {
+  border-color: var(--color-heading);
+  background: var(--color-heading);
+  color: #ffffff;
+}
+
+.data-table-card .paginacao-reticencias,
+.data-table-card .paginacao-info {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .data-table-card {
+    padding: 18px;
+  }
+
+  .data-table-card .filtros-container {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .data-table-card .filtro-busca,
+  .data-table-card .filtro-select {
+    width: 100%;
+  }
+
+  .data-table-card .filtro-select select {
+    width: 100%;
+  }
+
+  .data-table-card .paginacao-info {
+    width: 100%;
+    text-align: center;
+  }
+}

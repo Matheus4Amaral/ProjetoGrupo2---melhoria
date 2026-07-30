@@ -1,0 +1,90 @@
+:where(.modal-overlay, .replacement-overlay, .stock-modal-overlay, .logout-modal) {
+  padding: 16px;
+}
+
+@media (max-width: 640px) {
+  :where(.modal-overlay, .replacement-overlay, .stock-modal-overlay, .logout-modal) {
+    align-items: flex-start;
+    padding: 8px;
+    overflow-y: auto;
+  }
+
+  :where(
+    .modal-content,
+    .item-modal-content,
+    .stock-modal-content,
+    .supplier-modal-content,
+    .supplier-picker-content,
+    .replacement-modal,
+    .stock-modal,
+    .logout-modal-content,
+    .alert-modal-content
+  ) {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    margin: auto 0;
+    border-radius: var(--radius-card);
+  }
+
+  :where(
+    .modal-body,
+    .item-modal-body,
+    .stock-modal-body,
+    .supplier-modal-body,
+    .supplier-picker-body,
+    .replacement-body
+  ) {
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .replacement-body {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .replacement-header,
+  .replacement-footer {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .replacement-header h2 {
+    font-size: 21px;
+  }
+
+  :where(
+    .modal-footer,
+    .item-modal-footer,
+    .stock-modal-footer,
+    .supplier-modal-footer,
+    .replacement-footer,
+    .logout-modal-buttons
+  ) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :where(
+    .modal-footer,
+    .item-modal-footer,
+    .stock-modal-footer,
+    .supplier-modal-footer,
+    .replacement-footer,
+    .logout-modal-buttons
+  ) > button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .stock-modal-list {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .list-modal-header,
+  .list-modal-row {
+    min-width: 620px;
+  }
+}

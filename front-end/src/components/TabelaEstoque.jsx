@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import "./DataTable.css";
 import "./TabelaEstoque.css";
 import { useAlert } from "../contexts/AlertContext";
 
@@ -114,7 +115,7 @@ export default function TabelaEstoque({
   }
 
   return (
-    <div className="tabela-vendas">
+    <div className="data-table-card tabela-estoque">
       <h3 className="tabela-titulo">Lista de Produtos</h3>
 
       <div className="filtros-container">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./DataTable.css";
 import "./TabelaVendas.css";
 import { saleService } from "../services/saleService";
 import EditOrderModal from "./EditOrderModal";
@@ -40,10 +41,10 @@ export default function ListaVendas({ onVendaDeleted }) {
 
   // useEffect executa quando o componente é montado (carregado na tela)
   useEffect(() => {
-    loadVendas();
+    void Promise.resolve().then(loadVendas);
   }, []);
 
-  const loadVendas = async () => {
+  async function loadVendas() {
     try {
       setLoading(true); 
       
@@ -60,7 +61,7 @@ export default function ListaVendas({ onVendaDeleted }) {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const formatarData = (data) => {
     if (!data) return '-';
@@ -85,20 +86,20 @@ export default function ListaVendas({ onVendaDeleted }) {
     const dataVenda = new Date(venda.data_venda);
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
+    const dataVendaDia = new Date(venda.data_venda);
+    const seteDiasAtras = new Date(hoje);
+    const trintaDiasAtras = new Date(hoje);
 
     switch(filtroData) {
       case "Hoje":
-        const dataVendaDia = new Date(venda.data_venda);
         dataVendaDia.setHours(0, 0, 0, 0);
         return dataVendaDia.getTime() === hoje.getTime();
       
       case "Últimos 7 dias":
-        const seteDiasAtras = new Date(hoje);
         seteDiasAtras.setDate(hoje.getDate() - 7);
         return dataVenda >= seteDiasAtras;
       
       case "Últimos 30 dias":
-        const trintaDiasAtras = new Date(hoje);
         trintaDiasAtras.setDate(hoje.getDate() - 30);
         return dataVenda >= trintaDiasAtras;
       
@@ -130,10 +131,6 @@ export default function ListaVendas({ onVendaDeleted }) {
   const vendasPaginadas = vendasFiltradas.slice(indexPrimeiroItem, indexUltimoItem);
 
   // Resetar para primeira página quando filtros mudarem
-  useEffect(() => {
-    setPaginaAtual(1);
-  }, [searchTerm, filtroData]);
-
   const handlePaginaAnterior = () => {
     setPaginaAtual(prev => Math.max(prev - 1, 1));
   };
@@ -213,15 +210,15 @@ export default function ListaVendas({ onVendaDeleted }) {
   };
 
   if (loading) {
-    return <div className="tabela-vendas"><p>Carregando vendas...</p></div>;
+    return <div className="data-table-card tabela-vendas"><p>Carregando vendas...</p></div>;
   }
 
   if (error) {
-    return <div className="tabela-vendas"><p>{error}</p></div>;
+    return <div className="data-table-card tabela-vendas"><p>{error}</p></div>;
   }
 
   return (
-    <div className="tabela-vendas">
+    <div className="data-table-card tabela-vendas">
       <h3 className="tabela-titulo">Lista de Pedidos Recentes</h3>
       
       <div className="filtros-container">
@@ -233,7 +230,10 @@ export default function ListaVendas({ onVendaDeleted }) {
             type="text" 
             placeholder="Buscar por ID, Cliente..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPaginaAtual(1);
+            }}
           />
         </div>
         
@@ -241,7 +241,13 @@ export default function ListaVendas({ onVendaDeleted }) {
           <svg className="filtro-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#9ca3af">
             <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z"/>
           </svg>
-          <select value={filtroData} onChange={(e) => setFiltroData(e.target.value)}>
+          <select
+            value={filtroData}
+            onChange={(e) => {
+              setFiltroData(e.target.value);
+              setPaginaAtual(1);
+            }}
+          >
             <option>Últimos 30 dias</option>
             <option>Últimos 7 dias</option>
             <option>Hoje</option>

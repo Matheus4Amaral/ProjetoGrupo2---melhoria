@@ -3,8 +3,8 @@ import './Dashboard.css';
 import Chart from "react-apexcharts";  
 import { useState, useEffect } from 'react';
 
-import SideBar from '../components/SideBar'
-import Header from '../components/Header';
+import AppShell from '../components/AppShell';
+import CardResumo from '../components/CardResumo';
 
 import ProductLogo from '../assets/products-icon-dashboard.png'
 import SalesLogo from  '../assets/sales-icon-dashboard.png'
@@ -114,7 +114,8 @@ export default function Dashboard(){
     }
 
     useEffect(()=>{
-        fetchDashboardData()
+        void Promise.resolve().then(fetchDashboardData);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const lowStockProducts = (dashboardData?.lowStock ?? []).map((item) => ({
@@ -194,27 +195,22 @@ export default function Dashboard(){
     };
 
     return(
-        <>
-        <div className="dashboard-container">
-            <SideBar/>
-            <div className="dashboard-panel">
-                <Header title="Dashboard"/>
+        <AppShell title="Dashboard" contentClassName="dashboard-main">
                 <div className="dashboard-informations">
                     <div className="dashboard-cards">
-                        <div className="total-products">
-                            <img src={ProductLogo} alt='Logo de Produtos Dashboard' className='product-icon'></img>
-                            <h1>{dashboardData.totalProductsStock}</h1>
-                            <h2>Total de Itens</h2>
-                            <hr></hr>
-                            <span>+{dashboardData.recentProducts} itens adicionados nos últimos dias</span>
-                        </div>
-                        <div className="total-sales">
-                            <img src={SalesLogo} alt='Logo de Vendas Dashboard' className='sales-icon'></img>
-                            <h1>{dashboardData.totalSales}</h1>
-                            <h2>Total de Vendas</h2>
-                            <hr></hr>
-                            <span>+{dashboardData.recentSales} vendas realizadas nos últimos dias</span>
-                        </div>
+                        <CardResumo
+                            icon={<img src={ProductLogo} alt="" />}
+                            title="Total de Itens"
+                            value={loadingDashboard ? "..." : dashboardData.totalProductsStock}
+                            supportingText={`+${dashboardData.recentProducts} itens adicionados nos últimos dias`}
+                        />
+                        <CardResumo
+                            icon={<img src={SalesLogo} alt="" />}
+                            title="Total de Vendas"
+                            value={loadingDashboard ? "..." : dashboardData.totalSales}
+                            supportingText={`+${dashboardData.recentSales} vendas realizadas nos últimos dias`}
+                            tone="danger"
+                        />
                     </div>
 
                     <div className="dashboard-chart">
@@ -243,7 +239,11 @@ export default function Dashboard(){
                             <div className="stock-header">
                                 <div className="stock-title-group">
                                     <h3>Estoque Baixo</h3>
-                                    <p>6 itens requerem atenção</p>
+                                    <p>
+                                        {loadingDashboard
+                                            ? "Carregando itens..."
+                                            : `${lowStockProducts.length} itens requerem atenção`}
+                                    </p>
                                 </div>
                             </div>
 
@@ -312,19 +312,15 @@ export default function Dashboard(){
                             )}
                         </div>
 
-                        <div className='supplier-card'>
-                            <img src={SupplierLogo} alt='Logo de Fornecedores Dashboard' className='supplier-icon'></img>
-                            <h1>{dashboardData.totalSuppliers}</h1>
-                            <h2>Total de Fornecedores</h2>
-                            <hr></hr>
-                            <span>+{dashboardData.totalSuppliers} fornecedores cadastrados nos últimos dias</span>
-                        </div>
+                        <CardResumo
+                            icon={<img src={SupplierLogo} alt="" />}
+                            title="Total de Fornecedores"
+                            value={loadingDashboard ? "..." : dashboardData.totalSuppliers}
+                            supportingText={`+${dashboardData.recentSuppliers} fornecedores cadastrados nos últimos dias`}
+                        />
 
                     </div>
                 </div>
-
-            </div>
-        </div>
-        </>
+        </AppShell>
     );
 }
