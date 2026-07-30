@@ -67,6 +67,68 @@ export const getStock = async (req, res) => {
   }
 };
 
+export const createStockForProduct = async (req, res) => {
+  try {
+    const {
+      id_produto,
+      descricao,
+      quantidade_estoque_total,
+      quantidade_estoque_atual,
+    } = req.body;
+    const decoded = getUserFromToken(req);
+    const id_usuario = decoded.id_usuario;
+
+    if (!id_produto) {
+      return res.status(400).json({ message: "id_produto é obrigatório" });
+    }
+
+    const jaTemEstoque = await pool.query(
+      `SELECT *
+       FROM public.possui_estoque
+       WHERE id_produto = $1`,
+      [id_produto],
+    );
+
+    if (jaTemEstoque.rows.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "Produto já possui estoque cadastrado." });
+    }
+
+    const resultEstoque = await pool.query(
+      `INSERT INTO public.estoque (descricao, id_usuario)
+       VALUES ($1, $2)
+       RETURNING id_estoque, descricao, id_usuario`,
+      [descricao || `Estoque do produto ${id_produto}`, id_usuario],
+    );
+
+    const novoEstoque = resultEstoque.rows[0];
+
+    await pool.query(
+      `INSERT INTO public.possui_estoque
+       (id_estoque, id_produto, quantidade_estoque_total, quantidade_estoque_atual)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        novoEstoque.id_estoque,
+        id_produto,
+        quantidade_estoque_total ?? 0,
+        quantidade_estoque_atual ?? 0,
+      ],
+    );
+
+    return res.status(201).json({
+      message: "Estoque criado para o produto com sucesso",
+      estoque: novoEstoque,
+    });
+  } catch (error) {
+    console.error("Erro ao criar estoque para produto:", error);
+    return res.status(500).json({
+      message: "Erro ao criar estoque para produto",
+      error: error.message,
+    });
+  }
+};
+
 export const getStockByNome = async (req, res) => {
   try {
     const { nome } = req.params;
@@ -243,6 +305,8 @@ export const getStockProducts = async (req, res) => {
 
     const result = await pool.query(
       `SELECT
+         e.id_estoque,
+         e.descricao AS descricao_estoque,
          p.id_produto,
          p.nome_produto,
          p.categoria,
@@ -435,12 +499,41 @@ export const updateProductInStock = async (req, res) => {
 };
 
 export const deleteStock = async (req, res) => {
+  const { id } = req.params;
+
+  const client = await pool.connect();
+
   try {
-    const { id } = req.params;
     const decoded = getUserFromToken(req);
     const id_usuario = decoded.id_usuario;
 
-    const result = await pool.query(
+    await client.query("BEGIN");
+
+    const produtosResult = await client.query(
+      `SELECT id_produto
+       FROM public.possui_estoque
+       WHERE id_estoque = $1`,
+      [id],
+    );
+
+    const produtosIds = produtosResult.rows.map((row) => row.id_produto);
+
+    await client.query(
+      `DELETE FROM public.possui_estoque
+       WHERE id_estoque = $1`,
+      [id],
+    );
+
+    if (produtosIds.length > 0) {
+      await client.query(
+        `DELETE FROM public.produto
+         WHERE id_usuario = $1
+           AND id_produto = ANY($2::int[])`,
+        [id_usuario, produtosIds],
+      );
+    }
+
+    const result = await client.query(
       `DELETE FROM public.estoque
        WHERE id_estoque = $1 AND id_usuario = $2
        RETURNING *`,
@@ -448,14 +541,21 @@ export const deleteStock = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
+      client.release();
       return res.status(404).json({ message: "Estoque não encontrado" });
     }
 
+    await client.query("COMMIT");
+    client.release();
+
     return res.status(200).json({
-      message: "Estoque excluído com sucesso",
+      message: "Estoque e produtos associados excluídos com sucesso",
       estoque_excluido: result.rows[0],
     });
   } catch (error) {
+    await client.query("ROLLBACK");
+    client.release();
     return res.status(500).json({
       message: "Erro ao excluir estoque",
       error: error.message,

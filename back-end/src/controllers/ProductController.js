@@ -25,7 +25,6 @@ export const createProduct = async (req, res) => {
     lote,
     preco_venda,
     quantidade_inicial,
-    id_estoque,
     id_fornecedor,
   } = req.body;
 
@@ -75,10 +74,6 @@ export const createProduct = async (req, res) => {
       });
   }
 
-  if (!id_estoque) {
-    return res.status(400).json({ message: "ID do estoque é obrigatório" });
-  }
-
   const client = await pool.connect();
 
   try {
@@ -86,20 +81,6 @@ export const createProduct = async (req, res) => {
     const id_usuario = decoded.id_usuario;
 
     await client.query("BEGIN");
-
-    const estoqueResult = await client.query(
-      `SELECT id_estoque
-       FROM public.estoque
-       WHERE id_estoque = $1 AND id_usuario = $2`,
-      [id_estoque, id_usuario],
-    );
-
-    if (estoqueResult.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res
-        .status(403)
-        .json({ message: "Estoque não encontrado para este usuário" });
-    }
 
     if (
       id_fornecedor !== undefined &&
@@ -165,18 +146,6 @@ export const createProduct = async (req, res) => {
     );
 
     const produto = resultProduct.rows[0];
-
-    await client.query(
-      `INSERT INTO public.possui_estoque
-       (id_estoque, id_produto, quantidade_estoque_total, quantidade_estoque_atual)
-       VALUES ($1, $2, $3, $4)`,
-      [
-        id_estoque,
-        produto.id_produto,
-        Number(quantidade_inicial),
-        Number(quantidade_inicial),
-      ],
-    );
 
     await client.query("COMMIT");
 

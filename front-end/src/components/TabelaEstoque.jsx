@@ -66,18 +66,22 @@ export default function TabelaEstoque({
     }
 
     const confirmar = window.confirm(
-      `Deseja realmente remover o produto "${item.nome_produto}" do estoque?`,
+      `Deseja realmente excluir o estoque "${estoqueAtual.descricao}" e todos os produtos associados (incluindo "${item.nome_produto}")?`,
     );
 
     if (!confirmar) return;
 
     const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Usuário não autenticado.");
+      return;
+    }
 
     try {
       setDeletingId(item.id_produto);
 
-      const response = await fetch(
-        `http://localhost:3001/api/stock/${estoqueAtual.id_estoque}/produtos/${item.id_produto}`,
+      const responseDeleteStock = await fetch(
+        `http://localhost:3001/api/stock/${estoqueAtual.id_estoque}`,
         {
           method: "DELETE",
           headers: {
@@ -87,17 +91,18 @@ export default function TabelaEstoque({
         },
       );
 
-      const data = await response.json();
+      const dataDeleteStock = await responseDeleteStock.json();
 
-      if (!response.ok) {
-        alert(data.message || "Erro ao excluir produto do estoque.");
+      if (!responseDeleteStock.ok) {
+        alert(dataDeleteStock.message || "Erro ao excluir estoque.");
         return;
       }
 
-      alert("Produto removido do estoque com sucesso.");
+      alert("Estoque e produtos associados excluídos com sucesso.");
+
       await onReload();
     } catch (error) {
-      alert(`Erro ao excluir produto: ${error.message}`);
+      alert(`Erro ao excluir estoque: ${error.message}`);
     } finally {
       setDeletingId(null);
     }

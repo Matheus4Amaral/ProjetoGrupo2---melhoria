@@ -33,7 +33,6 @@ export default function ItemModal({
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
 
-  // Carrega os fornecedores apenas quando o modal abre
   useEffect(() => {
     let isMounted = true;
 
@@ -113,6 +112,48 @@ export default function ItemModal({
     }));
   };
 
+  const criarEstoqueParaProduto = async (id_produto) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Usuário não autenticado ao criar estoque.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3001/api/stock/product", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_produto,
+          descricao: `Estoque de ${formData.nome_produto || "Produto"}`,
+          quantidade_estoque_total:
+            formData.quantidade_inicial === ""
+              ? 0
+              : Number(formData.quantidade_inicial),
+          quantidade_estoque_atual:
+            formData.quantidade_inicial === ""
+              ? 0
+              : Number(formData.quantidade_inicial),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Erro ao criar estoque para o produto.");
+        return;
+      }
+
+    } catch (error) {
+      console.error("Erro ao criar estoque para produto:", error);
+      alert(`Erro ao criar estoque para o produto: ${error.message}`);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isViewMode) return;
@@ -131,11 +172,6 @@ export default function ItemModal({
 
     if (!formData.categoria.trim()) {
       alert("Informe a categoria.");
-      return;
-    }
-
-    if (!estoqueAtual?.id_estoque && isCreateMode) {
-      alert("Nenhum estoque encontrado.");
       return;
     }
 
@@ -158,10 +194,6 @@ export default function ItemModal({
         ? Number(formData.id_fornecedor)
         : null,
     };
-
-    if (isCreateMode) {
-      payload.id_estoque = estoqueAtual.id_estoque;
-    }
 
     try {
       setSaving(true);
@@ -198,6 +230,15 @@ export default function ItemModal({
           ? "Produto atualizado com sucesso."
           : "Produto cadastrado com sucesso.",
       );
+
+      if (isCreateMode) {
+        const novoProduto = data.produto || data;
+        if (novoProduto && novoProduto.id_produto) {
+          await criarEstoqueParaProduto(novoProduto.id_produto);
+        } else {
+          console.warn("Não foi possível obter id_produto da resposta:", data);
+        }
+      }
 
       if (onSuccess) {
         await onSuccess();

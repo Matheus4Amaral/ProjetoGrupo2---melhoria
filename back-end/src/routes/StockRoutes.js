@@ -10,6 +10,7 @@ import {
   addProductToStock,
   updateProductInStock,
   removeProductFromStock,
+  createStockForProduct,
 } from "../controllers/StockController.js";
 
 const router = Router();
@@ -20,6 +21,7 @@ router.post("/", createStock);
 router.put("/:id", updateStock);
 router.delete("/:id", deleteStock);
 router.get("/status/:status", getStockByStatus);
+router.post("/product", createStockForProduct);
 
 router.get("/:id/produtos", getStockProducts);
 router.post("/:id_estoque/produtos", addProductToStock);

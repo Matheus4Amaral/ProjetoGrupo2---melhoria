@@ -1,14 +1,19 @@
 import pool from "../config/database.js";
+import jwt from "jsonwebtoken";
+
+const getUserFromToken = (req) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const error = new Error("Token não fornecido ou mal formatado");
+    error.statusCode = 401;
+    throw error;
+  }
+  const token = authHeader.split(" ")[1];
+  return jwt.verify(token, process.env.JWT_SECRET);
+};
 
 export const createSale = async (req, res) => {
-  const {
-    descricao,
-    data_venda,
-    valor_venda,
-    id_usuario,
-    cliente_id,
-    produtos,
-  } = req.body;
+  const { descricao, data_venda, valor_venda, cliente_id, produtos } = req.body;
 
   if (!Array.isArray(produtos) || produtos.length === 0) {
     return res
@@ -16,35 +21,71 @@ export const createSale = async (req, res) => {
       .json({ message: "Informe ao menos um produto para a venda" });
   }
 
-  const client = await pool.connect(); //conexão bd
+  const client = await pool.connect();
 
   try {
+    // pega o usuário do token, não do body
+    const decoded = getUserFromToken(req);
+    const id_usuario = decoded.id_usuario;
+
     await client.query("BEGIN");
 
+    // 1. Criar a venda
     const insertSale = await client.query(
       `INSERT INTO public.venda (descricao, data_venda, id_usuario, valor_venda)
        VALUES ($1, COALESCE($2, CURRENT_DATE), $3, $4)
        RETURNING id_venda`,
-      [
-        descricao || null,
-        data_venda || null,
-        id_usuario || null,
-        valor_venda || null,
-      ],
+      [descricao || null, data_venda || null, id_usuario, valor_venda || null],
     );
 
-    // guarda id da venda feita
     const id_venda = insertSale.rows[0].id_venda;
 
+    // 2. Para cada produto, validar e atualizar estoque + inserir em possui_venda
     for (const item of produtos) {
       const { id_produto, quantidade_venda } = item;
 
       if (!id_produto || !quantidade_venda) {
-        await client.query("ROLLBACK"); //desfaz
+        await client.query("ROLLBACK");
         return res.status(400).json({
           message: "Cada produto precisa ter id_produto e quantidade_venda",
         });
       }
+
+      const estoqueResult = await client.query(
+        `SELECT pe.id_estoque,
+                pe.quantidade_estoque_total,
+                pe.quantidade_estoque_atual
+         FROM public.possui_estoque pe
+         INNER JOIN public.estoque e ON e.id_estoque = pe.id_estoque
+         WHERE pe.id_produto = $1
+           AND e.id_usuario = $2`,
+        [id_produto, id_usuario],
+      );
+
+      if (estoqueResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({
+          message: `Produto ${id_produto} não está em nenhum estoque deste usuário`,
+        });
+      }
+
+      const registroEstoque = estoqueResult.rows[0];
+
+      if (registroEstoque.quantidade_estoque_atual < quantidade_venda) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          message: `Estoque insuficiente para o produto ${id_produto}`,
+          estoque_atual: registroEstoque.quantidade_estoque_atual,
+          quantidade_venda,
+        });
+      }
+
+      await client.query(
+        `UPDATE public.possui_estoque
+         SET quantidade_estoque_atual = quantidade_estoque_atual - $1
+         WHERE id_estoque = $2 AND id_produto = $3`,
+        [quantidade_venda, registroEstoque.id_estoque, id_produto],
+      );
 
       await client.query(
         `INSERT INTO public.possui_venda (id_venda, id_produto, quantidade_venda)
@@ -61,7 +102,7 @@ export const createSale = async (req, res) => {
       );
     }
 
-    await client.query("COMMIT"); // salvar de vez todas as alterações feitas desde o begin
+    await client.query("COMMIT");
 
     return res.status(201).json({
       message: "Venda criada com sucesso",
@@ -411,12 +452,9 @@ export const addProductToSale = async (req, res) => {
     );
 
     if (checkProduct.rows.length > 0) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Produto já existe nesta venda. Use incrementar/decrementar.",
-        });
+      return res.status(400).json({
+        message: "Produto já existe nesta venda. Use incrementar/decrementar.",
+      });
     }
 
     await client.query(
