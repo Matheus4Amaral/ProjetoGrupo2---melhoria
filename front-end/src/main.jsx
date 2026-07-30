@@ -60,7 +60,7 @@ const router = createBrowserRouter([
     element: <ForgotPassword />,
   },
   {
-    path: "*",
+    path: "*", //
     element: <NotFound />,
   },
 ]);
