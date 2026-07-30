@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./RegisterSupplier.css";
+import { useToast } from "../context/ToastProvider";
 
 export default function RegisterSupplier({ isOpen, onClose, onSave }) {
+  const { showToast } = useToast();
   const initialFormData = {
     nome_fornecedor: "",
     rua: "",
+    numero: "",
     bairro: "",
     cidade: "",
     estado: "",
-    pais: "",
+    pais: "Brasil",
     cep: "",
     email: "",
     telefone: "",
@@ -18,6 +21,9 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
 
   const [formData, setFormData] = useState(initialFormData);
   const [saving, setSaving] = useState(false);
+  const [loadingCep, setLoadingCep] = useState(false);
+
+  const numeroInputRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -26,8 +32,110 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     }
   }, [isOpen]);
 
+  const formatarDocumento = (valor) => {
+    const apenasNumeros = valor.replace(/\D/g, "");
+
+    if (apenasNumeros.length <= 11) {
+      return apenasNumeros
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    } else {
+      return apenasNumeros
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+  };
+
+  const formatarTelefone = (valor) => {
+    const apenasNumeros = valor.replace(/\D/g, "");
+
+    if (apenasNumeros.length <= 10) {
+      return apenasNumeros
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    } else {
+      return apenasNumeros
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d)/, "$1-$2");
+    }
+  };
+
+  const buscarEnderecoPorCep = async (cepLimpo) => {
+    if (cepLimpo.length !== 8) return;
+
+    try {
+      setLoadingCep(true);
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cepLimpo}/json/`,
+      );
+      const data = await response.json();
+
+      if (data.erro) {
+        showToast("error", "CEP não encontrado.");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        rua: data.logradouro || prev.rua,
+        bairro: data.bairro || prev.bairro,
+        cidade: data.localidade || prev.cidade,
+        estado: data.uf || prev.estado,
+        pais: "Brasil",
+      }));
+
+      setTimeout(() => {
+        if (numeroInputRef.current) {
+          numeroInputRef.current.focus();
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+      showToast("error", "Erro ao buscar CEP.");
+    } finally {
+      setLoadingCep(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "documento") {
+      const apenasNumeros = value.replace(/\D/g, "");
+      if (apenasNumeros.length > 14) return;
+
+      const tipoPessoa =
+        apenasNumeros.length > 11 ? "PJ" : apenasNumeros.length > 0 ? "PF" : "";
+
+      setFormData((prev) => ({
+        ...prev,
+        documento: apenasNumeros,
+        tipo_pessoa: tipoPessoa || prev.tipo_pessoa,
+      }));
+      return;
+    }
+
+    if (name === "cep") {
+      const apenasNumeros = value.replace(/\D/g, "");
+      if (apenasNumeros.length > 8) return;
+
+      setFormData((prev) => ({ ...prev, [name]: apenasNumeros }));
+
+      if (apenasNumeros.length === 8) {
+        buscarEnderecoPorCep(apenasNumeros);
+      }
+      return;
+    }
+
+    if (name === "telefone") {
+      const apenasNumeros = value.replace(/\D/g, "");
+      if (apenasNumeros.length > 11) return;
+      setFormData((prev) => ({ ...prev, [name]: apenasNumeros }));
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -41,18 +149,36 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      showToast("error", "Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_fornecedor.trim()) {
-      alert("Informe o nome do fornecedor.");
+      showToast("warning", "Informe o nome do fornecedor.");
+      return;
+    }
+
+    const docNumeros = formData.documento.replace(/\D/g, "");
+
+    if (
+      docNumeros.length !== 0 &&
+      docNumeros.length !== 11 &&
+      docNumeros.length !== 14
+    ) {
+      showToast(
+        "warning",
+        `O documento possui ${docNumeros.length} dígitos. Informe exatamente 11 dígitos para CPF ou 14 dígitos para CNPJ.`,
+      );
       return;
     }
 
     const payload = {
       nome_fornecedor: formData.nome_fornecedor.trim(),
-      rua: formData.rua.trim() || null,
+      rua: formData.rua.trim()
+        ? formData.numero
+          ? `${formData.rua.trim()}, ${formData.numero.trim()}`
+          : formData.rua.trim()
+        : null,
       bairro: formData.bairro.trim() || null,
       cidade: formData.cidade.trim() || null,
       estado: formData.estado.trim() || null,
@@ -60,7 +186,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
       cep: formData.cep.trim() || null,
       email: formData.email.trim() || null,
       telefone: formData.telefone.trim() || null,
-      documento: formData.documento.trim() || null,
+      documento: docNumeros || null,
       tipo_pessoa: formData.tipo_pessoa.trim() || null,
     };
 
@@ -79,19 +205,19 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao cadastrar fornecedor.");
+        showToast("error", data.message || "Erro ao cadastrar fornecedor.");
         return;
       }
 
-      alert("Fornecedor cadastrado com sucesso.");
-
+      showToast("success", "Fornecedor cadastrado com sucesso.");
       if (onSave) {
         onSave(data.fornecedor || data.data || data);
       }
 
       onClose();
     } catch (error) {
-      alert(`Erro ao cadastrar fornecedor: ${error.message}`);
+      console.error("Erro ao cadastrar fornecedor:", error);
+      showToast("error", `Erro ao cadastrar fornecedor: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -121,6 +247,8 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                 name="nome_fornecedor"
                 value={formData.nome_fornecedor}
                 onChange={handleChange}
+                placeholder="Ex: João Roberto"
+                required
               />
             </div>
 
@@ -142,9 +270,10 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
               <input
                 type="text"
                 name="documento"
-                value={formData.documento}
+                value={formatarDocumento(formData.documento)}
                 onChange={handleChange}
                 placeholder="CPF ou CNPJ"
+                maxLength={18}
               />
             </div>
 
@@ -155,6 +284,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                placeholder="Ex: email@gmail.com"
               />
             </div>
 
@@ -163,18 +293,41 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
               <input
                 type="text"
                 name="telefone"
-                value={formData.telefone}
+                value={formatarTelefone(formData.telefone)}
                 onChange={handleChange}
+                placeholder="(00) 00000-0000"
+                maxLength={15}
               />
             </div>
 
             <div className="form-group">
-              <label>CEP</label>
+              <label>
+                CEP{" "}
+                {loadingCep && (
+                  <span style={{ fontSize: "12px", color: "#104f3a" }}>
+                    (Buscando...)
+                  </span>
+                )}
+              </label>
               <input
                 type="text"
                 name="cep"
-                value={formData.cep}
+                value={formData.cep.replace(/^(\d{5})(\d)/, "$1-$2")}
                 onChange={handleChange}
+                placeholder="00000-000"
+                maxLength={9}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Número</label>
+              <input
+                ref={numeroInputRef}
+                type="text"
+                name="numero"
+                value={formData.numero}
+                onChange={handleChange}
+                placeholder="Ex: 123"
               />
             </div>
 
@@ -185,6 +338,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                 name="rua"
                 value={formData.rua}
                 onChange={handleChange}
+                placeholder="Ex: Rua das Laranjeiras"
               />
             </div>
 
@@ -195,6 +349,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                 name="bairro"
                 value={formData.bairro}
                 onChange={handleChange}
+                placeholder="Ex: Centro"
               />
             </div>
 
@@ -205,6 +360,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                 name="cidade"
                 value={formData.cidade}
                 onChange={handleChange}
+                placeholder="Ex: Xique-Xique"
               />
             </div>
 
@@ -215,6 +371,8 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
                 name="estado"
                 value={formData.estado}
                 onChange={handleChange}
+                placeholder="Ex: MG"
+                maxLength={2}
               />
             </div>
 

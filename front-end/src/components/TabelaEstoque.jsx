@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import "./TabelaEstoque.css";
+import { useToast } from "../context/ToastProvider";
 
 export default function TabelaEstoque({
   produtos = [],
@@ -9,6 +10,7 @@ export default function TabelaEstoque({
   onViewItem = () => {},
   onEditItem = () => {},
 }) {
+  const { showToast } = useToast();
   const [busca, setBusca] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("");
@@ -60,20 +62,20 @@ export default function TabelaEstoque({
   };
 
   async function handleDelete(item) {
-    if (!estoqueAtual?.id_estoque) {
-      alert("Estoque não identificado para exclusão.");
+    if (!item.id_estoque) {
+      showToast("error", "Estoque não identificado para exclusão.");
       return;
     }
 
     const confirmar = window.confirm(
-      `Deseja realmente excluir o estoque "${estoqueAtual.descricao}" e todos os produtos associados (incluindo "${item.nome_produto}")?`,
+      `Deseja realmente excluir o estoque "${item.descricao_estoque}" e todos os produtos associados (incluindo "${item.nome_produto}")?`,
     );
 
     if (!confirmar) return;
 
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Usuário não autenticado.");
+      showToast("error", "Usuário não autenticado.");
       return;
     }
 
@@ -81,7 +83,7 @@ export default function TabelaEstoque({
       setDeletingId(item.id_produto);
 
       const responseDeleteStock = await fetch(
-        `http://localhost:3001/api/stock/${estoqueAtual.id_estoque}`,
+        `http://localhost:3001/api/stock/${item.id_estoque}`,
         {
           method: "DELETE",
           headers: {
@@ -94,15 +96,21 @@ export default function TabelaEstoque({
       const dataDeleteStock = await responseDeleteStock.json();
 
       if (!responseDeleteStock.ok) {
-        alert(dataDeleteStock.message || "Erro ao excluir estoque.");
+        showToast(
+          "error",
+          dataDeleteStock.message || "Erro ao excluir estoque.",
+        );
         return;
       }
 
-      alert("Estoque e produtos associados excluídos com sucesso.");
-
+      showToast(
+        "success",
+        "Estoque e produtos associados excluídos com sucesso.",
+      );
       await onReload();
     } catch (error) {
-      alert(`Erro ao excluir estoque: ${error.message}`);
+      console.error("Erro ao excluir estoque:", error);
+      showToast("error", `Erro ao excluir estoque: ${error.message}`);
     } finally {
       setDeletingId(null);
     }

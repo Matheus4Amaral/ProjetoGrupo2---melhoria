@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react";
+import { useToast } from "../context/ToastProvider";
 import "./ItemModal.css";
 import RegisterSupplier from "./RegisterSupplier";
 
 export default function ItemModal({
   isOpen,
   onClose,
-  estoqueAtual,
   onSuccess,
   mode = "create",
   itemSelecionado = null,
@@ -23,6 +23,7 @@ export default function ItemModal({
     lote: "",
   };
 
+  const { showToast } = useToast();
   const [formData, setFormData] = useState(initialFormData);
   const [fornecedores, setFornecedores] = useState([]);
   const [loadingFornecedores, setLoadingFornecedores] = useState(false);
@@ -116,7 +117,7 @@ export default function ItemModal({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado ao criar estoque.");
+      showToast("error", "Usuário não autenticado ao criar estoque.");
       return;
     }
 
@@ -144,13 +145,18 @@ export default function ItemModal({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao criar estoque para o produto.");
+        showToast(
+          "error",
+          data.message || "Erro ao criar estoque para o produto.",
+        );
         return;
       }
-
     } catch (error) {
       console.error("Erro ao criar estoque para produto:", error);
-      alert(`Erro ao criar estoque para o produto: ${error.message}`);
+      showToast(
+        "error",
+        `Erro ao criar estoque para o produto: ${error.message}`,
+      );
     }
   };
 
@@ -161,17 +167,17 @@ export default function ItemModal({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      showToast("error", "Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_produto.trim()) {
-      alert("Informe o nome do produto.");
+      showToast("warning", "Informe o nome do produto.");
       return;
     }
 
     if (!formData.categoria.trim()) {
-      alert("Informe a categoria.");
+      showToast("warning", "Informe a categoria.");
       return;
     }
 
@@ -216,7 +222,8 @@ export default function ItemModal({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
+        showToast(
+          "error",
           data.message ||
             (isEditMode
               ? "Erro ao atualizar produto."
@@ -225,7 +232,8 @@ export default function ItemModal({
         return;
       }
 
-      alert(
+      showToast(
+        "success",
         isEditMode
           ? "Produto atualizado com sucesso."
           : "Produto cadastrado com sucesso.",
@@ -246,7 +254,8 @@ export default function ItemModal({
 
       onClose();
     } catch (error) {
-      alert(`Erro ao salvar item: ${error.message}`);
+      console.error("Erro ao salvar item:", error);
+      showToast("error", `Erro ao salvar item: ${error.message}`);
     } finally {
       setSaving(false);
     }

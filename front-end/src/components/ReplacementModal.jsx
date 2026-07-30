@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./ReplacementModal.css";
+import { useToast } from "../context/ToastProvider";
 
 export default function ReplacementModal({
   openModal,
@@ -8,6 +9,7 @@ export default function ReplacementModal({
   onReplacement,
   loadingReplacement,
 }) {
+  const { showToast } = useToast();
   const [quantidade, setQuantidade] = useState("");
 
   if (!openModal || !product) return null;
@@ -16,7 +18,7 @@ export default function ReplacementModal({
     e.preventDefault();
 
     if (!quantidade || Number(quantidade) <= 0) {
-      alert("Informe uma quantidade válida");
+      showToast("warning", "Informe uma quantidade válida.");
       return;
     }
 

@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import "./Fornecedor.css";
+import { useToast } from "../context/ToastProvider";
 
 export default function Fornecedor() {
+  const { showToast } = useToast();
   const initialFormData = {
     nome_fornecedor: "",
     rua: "",
@@ -59,6 +61,38 @@ export default function Fornecedor() {
     }
   };
 
+  const formatarDocumento = (valor) => {
+    const apenasNumeros = valor.replace(/\D/g, "");
+
+    if (apenasNumeros.length <= 11) {
+      return apenasNumeros
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    } else {
+      // CNPJ: 12.345.678/9000-00
+      return apenasNumeros
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+  };
+
+  const formatarTelefone = (valor) => {
+    const apenasNumeros = valor.replace(/\D/g, "");
+
+    if (apenasNumeros.length <= 10) {
+      return apenasNumeros
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    } else {
+      return apenasNumeros
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d)/, "$1-$2");
+    }
+  };
+
   // Função para buscar o endereço via API do ViaCEP
   const buscarEnderecoPorCep = async (cepLimpo) => {
     if (cepLimpo.length !== 8) return;
@@ -71,7 +105,7 @@ export default function Fornecedor() {
       const data = await response.json();
 
       if (data.erro) {
-        alert("CEP não encontrado.");
+        showToast("error", "CEP não encontrado.");
         return;
       }
 
@@ -101,11 +135,18 @@ export default function Fornecedor() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Máscara e validação do Documento
     if (name === "documento") {
       const apenasNumeros = value.replace(/\D/g, "");
       if (apenasNumeros.length > 14) return;
-      setFormData((prev) => ({ ...prev, [name]: apenasNumeros }));
+
+      const tipoPessoa =
+        apenasNumeros.length > 11 ? "PJ" : apenasNumeros.length > 0 ? "PF" : "";
+
+      setFormData((prev) => ({
+        ...prev,
+        documento: apenasNumeros,
+        tipo_pessoa: tipoPessoa || prev.tipo_pessoa, // Atualiza automaticamente
+      }));
       return;
     }
 
@@ -116,10 +157,16 @@ export default function Fornecedor() {
 
       setFormData((prev) => ({ ...prev, [name]: apenasNumeros }));
 
-      // Dispara a consulta assim que atingir os 8 dígitos do CEP
       if (apenasNumeros.length === 8) {
         buscarEnderecoPorCep(apenasNumeros);
       }
+      return;
+    }
+
+    if (name === "telefone") {
+      const apenasNumeros = value.replace(/\D/g, "");
+      if (apenasNumeros.length > 11) return;
+      setFormData((prev) => ({ ...prev, [name]: apenasNumeros }));
       return;
     }
 
@@ -135,12 +182,12 @@ export default function Fornecedor() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      showToast("error", "Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_fornecedor.trim()) {
-      alert("Informe o nome do fornecedor.");
+      showToast("warning", "Informe o nome do fornecedor.");
       return;
     }
 
@@ -151,7 +198,8 @@ export default function Fornecedor() {
       docNumeros.length !== 11 &&
       docNumeros.length !== 14
     ) {
-      alert(
+      showToast(
+        "warning",
         `O documento possui ${docNumeros.length} dígitos. Informe exatamente 11 dígitos para CPF ou 14 dígitos para CNPJ.`,
       );
       return;
@@ -190,16 +238,17 @@ export default function Fornecedor() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao cadastrar fornecedor.");
+        showToast("error", data.message || "Erro ao cadastrar fornecedor.");
         return;
       }
 
-      alert("Fornecedor cadastrado com sucesso.");
+      showToast("success", "Fornecedor cadastrado com sucesso.");
 
       setFormData(initialFormData);
       fetchFornecedores();
     } catch (error) {
-      alert(`Erro ao cadastrar fornecedor: ${error.message}`);
+      console.error("Erro ao cadastrar fornecedor:", error);
+      showToast("error", `Erro ao cadastrar fornecedor: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -225,6 +274,7 @@ export default function Fornecedor() {
                     name="nome_fornecedor"
                     value={formData.nome_fornecedor}
                     onChange={handleChange}
+                    placeholder="Ex: João Roberto"
                     required
                   />
                 </div>
@@ -247,10 +297,10 @@ export default function Fornecedor() {
                   <input
                     type="text"
                     name="documento"
-                    value={formData.documento}
+                    value={formatarDocumento(formData.documento)}
                     onChange={handleChange}
-                    placeholder="CPF (11 dígitos) ou CNPJ (14 dígitos)"
-                    maxLength={14}
+                    placeholder="CPF ou CNPJ"
+                    maxLength={18}
                   />
                 </div>
 
@@ -261,6 +311,7 @@ export default function Fornecedor() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    placeholder="Ex: email@gmail.com"
                   />
                 </div>
 
@@ -269,8 +320,10 @@ export default function Fornecedor() {
                   <input
                     type="text"
                     name="telefone"
-                    value={formData.telefone}
+                    value={formatarTelefone(formData.telefone)}
                     onChange={handleChange}
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
                   />
                 </div>
 
@@ -287,10 +340,10 @@ export default function Fornecedor() {
                   <input
                     type="text"
                     name="cep"
-                    value={formData.cep}
+                    value={formData.cep.replace(/^(\d{5})(\d)/, "$1-$2")}
                     onChange={handleChange}
-                    placeholder="Digite os 8 números"
-                    maxLength={8}
+                    placeholder="00000-000"
+                    maxLength={9}
                   />
                 </div>
 
@@ -313,6 +366,7 @@ export default function Fornecedor() {
                     type="text"
                     name="rua"
                     value={formData.rua}
+                    placeholder="Ex: Rua das Laranjeiras"
                     onChange={handleChange}
                   />
                 </div>
@@ -324,6 +378,7 @@ export default function Fornecedor() {
                     name="bairro"
                     value={formData.bairro}
                     onChange={handleChange}
+                    placeholder="Ex: Centro"
                   />
                 </div>
 
@@ -334,6 +389,7 @@ export default function Fornecedor() {
                     name="cidade"
                     value={formData.cidade}
                     onChange={handleChange}
+                    placeholder="Ex: Xique-Xique Bahia"
                   />
                 </div>
 
@@ -344,6 +400,7 @@ export default function Fornecedor() {
                     name="estado"
                     value={formData.estado}
                     onChange={handleChange}
+                    placeholder="Ex: MG"
                   />
                 </div>
 

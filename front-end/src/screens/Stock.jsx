@@ -5,14 +5,16 @@ import Header from "../components/Header";
 import CardResumo from "../components/cardResumo";
 import TabelaEstoque from "../components/TabelaEstoque";
 import ItemModal from "../components/ItemModal";
+import { useToast } from "../context/ToastProvider.jsx";
 
 export default function Stock() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedItem, setSelectedItem] = useState(null);
+  const { showToast } = useToast();
 
-  const [produtos, setProdutos] = useState([]);
-  const [estoqueAtual, setEstoqueAtual] = useState(null);
+  const [estoques, setEstoques] = useState([]);
+  const [produtosPorEstoque, setProdutosPorEstoque] = useState({});
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -53,10 +55,9 @@ export default function Stock() {
       setLoading(true);
       setErrorMessage(null);
 
-      // 1. Busca Estoque (passando o signal para poder cancelar se o usuário mudar de página)
       const responseEstoques = await fetch("http://localhost:3001/api/stock", {
         method: "GET",
-        signal, // AbortSignal
+        signal,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -74,40 +75,46 @@ export default function Stock() {
         ? dataEstoques.estoques
         : [];
 
+      setEstoques(listaEstoques);
+
       if (listaEstoques.length === 0) {
-        setProdutos([]);
-        setEstoqueAtual(null);
+        setProdutosPorEstoque({});
         return;
       }
 
-      const estoque = listaEstoques[0];
-      setEstoqueAtual(estoque);
+      const produtosMap = {};
 
-      // 2. Busca Produtos do Estoque
-      const responseProdutos = await fetch(
-        `http://localhost:3001/api/stock/${estoque.id_estoque}/produtos`,
-        {
-          method: "GET",
-          signal, // AbortSignal
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+      for (const estoque of listaEstoques) {
+        const responseProdutos = await fetch(
+          `http://localhost:3001/api/stock/${estoque.id_estoque}/produtos`,
+          {
+            method: "GET",
+            signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           },
-        },
-      );
+        );
 
-      const dataProdutos = await responseProdutos.json();
+        const dataProdutos = await responseProdutos.json();
 
-      if (!responseProdutos.ok) {
-        setErrorMessage(dataProdutos.message || "Erro ao carregar produtos.");
-        return;
+        if (!responseProdutos.ok) {
+          console.error(
+            `Erro ao carregar produtos do estoque ${estoque.id_estoque}:`,
+            dataProdutos.message,
+          );
+          produtosMap[estoque.id_estoque] = [];
+          continue;
+        }
+
+        produtosMap[estoque.id_estoque] = Array.isArray(dataProdutos.produtos)
+          ? dataProdutos.produtos
+          : [];
       }
 
-      setProdutos(
-        Array.isArray(dataProdutos.produtos) ? dataProdutos.produtos : [],
-      );
+      setProdutosPorEstoque(produtosMap);
     } catch (error) {
-      // Ignora erro se for apenas o cancelamento intencional da requisição ao mudar de rota
       if (error.name !== "AbortError") {
         console.error("Erro no fetch:", error);
         setErrorMessage(`Erro ao carregar estoque: ${error.message}`);
@@ -118,22 +125,27 @@ export default function Stock() {
   }
 
   useEffect(() => {
-    // Controller para cancelar a requisição se o usuário sair da página antes de carregar
     const controller = new AbortController();
 
     fetchProdutosEstoque(controller.signal);
-
-    // Função de limpeza executada quando o componente é desmontado
     return () => {
       controller.abort();
     };
   }, []);
 
-  const totalProdutos = produtos.length;
-  const produtosAlerta = produtos.filter(
+  const todosProdutos = Object.entries(produtosPorEstoque).flatMap(
+    ([id_estoque, produtos]) =>
+      produtos.map((p) => ({
+        ...p,
+        id_estoque: Number(id_estoque),
+      })),
+  );
+
+  const totalProdutos = todosProdutos.length;
+  const produtosAlerta = todosProdutos.filter(
     (item) => item.status === "Alerta",
   ).length;
-  const produtosCritico = produtos.filter(
+  const produtosCritico = todosProdutos.filter(
     (item) => item.status === "Crítico",
   ).length;
 
@@ -179,9 +191,8 @@ export default function Stock() {
             </div>
 
             <TabelaEstoque
-              produtos={produtos}
+              produtos={todosProdutos}
               loading={loading}
-              estoqueAtual={estoqueAtual}
               onReload={() => fetchProdutosEstoque()}
               onViewItem={handleVisualizarItem}
               onEditItem={handleEditarItem}
@@ -193,7 +204,6 @@ export default function Stock() {
       <ItemModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        estoqueAtual={estoqueAtual}
         onSuccess={() => fetchProdutosEstoque()}
         mode={modalMode}
         itemSelecionado={selectedItem}

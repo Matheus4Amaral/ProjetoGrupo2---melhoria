@@ -2,10 +2,11 @@ import "./Register.css";
 import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
+import { useToast } from "../context/ToastProvider";
 
 export default function Cadastro() {
   const navigate = useNavigate();
-
+  const { showToast } = useToast();
   // function handleRegister() {
   //   navigate("/dashboard");
   // }
@@ -25,7 +26,7 @@ export default function Cadastro() {
       const data = await response.json();
 
       if (data.erro) {
-        alert("CEP não encontrado.");
+        showToast("CEP não encontrado.");
         return;
       }
 
@@ -97,15 +98,16 @@ export default function Cadastro() {
 
     setFormData((prev) => ({ ...prev, cep: valor }));
 
+    if (valor.length >= 5) {
+      const mascarado = valor.replace(/^(\d{5})(\d)/, "$1-$2");
+      e.target.value = mascarado;
+    } else {
+      e.target.value = valor;
+    }
+
     if (valor.length === 8) {
       buscarEnderecoPorCep(valor);
     }
-
-    if (valor.length >= 5) {
-      valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
-    }
-
-    e.target.value = valor;
   };
 
   const handleTelefoneChange = (e) => {
@@ -148,15 +150,15 @@ export default function Cadastro() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(`${data.message}`);
+         showToast("error", data.message || "Erro ao cadastrar usuário.");
         return;
       }
 
-      alert("Cadastro realizado com sucesso!");
+      showToast("success", "Cadastro realizado com sucesso!");
       navigate("/");
     } catch (error) {
       console.error(error);
-      alert(`Erro ao conectar com o servidor: ${error.message}`);
+      showToast("error", `Erro ao conectar com o servidor: ${error.message}`);
     }
   };
 

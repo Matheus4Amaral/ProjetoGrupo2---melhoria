@@ -3,9 +3,11 @@ import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { useToast } from "../context/ToastProvider";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // function handleLogin(){
   //   navigate('/dashboard')
@@ -36,7 +38,7 @@ export default function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(`${data.message}`);
+        showToast("error", data.message || "Erro ao fazer login.");
         return;
       }
 
@@ -46,7 +48,7 @@ export default function Login() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert(`Erro ao conectar com o servidor: ${error.message}`);
+      showToast("error", `Erro ao conectar com o servidor: ${error.message}`);
     }
   };
 
@@ -104,11 +106,6 @@ export default function Login() {
               </button>
             </div>
             <div className="form-options">
-              <label htmlFor="remember" className="remember-me">
-                <input type="checkbox" id="remember" />
-                <span>Manter conectado</span>
-              </label>
-
               <a href="/forgot-password" className="missing-password">
                 Esqueci minha senha
               </a>

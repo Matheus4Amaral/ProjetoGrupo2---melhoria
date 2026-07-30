@@ -11,6 +11,7 @@ import SalesLogo from "../assets/sales-icon-dashboard.png";
 import SupplierLogo from "../assets/supplier-icon-dashboard.png";
 import LowStockModal from "../components/LowStockModal";
 import ReplacementModal from "../components/ReplacementModal";
+import { useToast } from "../context/ToastProvider";
 
 export default function Dashboard() {
   const [openLowStockModal, setOpenLowStockModal] = useState(false);
@@ -28,6 +29,7 @@ export default function Dashboard() {
     recentSuppliers: 0,
   });
   const [loadingDashboard, setLoadingDashboard] = useState(true);
+  const { showToast } = useToast();
 
   const token = localStorage.getItem("token");
 
@@ -58,15 +60,16 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(`${data.message}`);
+        showToast("error", data.message || "Erro ao realizar reposição.");
         return;
       }
 
-      alert("Reposição realizada com sucesso");
+      showToast("success", "Reposição realizada com sucesso.");
 
       setOpenReplacementModal(false);
     } catch (error) {
-      alert(`Erro ao conectar com o servidor ${error.message}`);
+      console.error(error);
+      showToast("error", `Erro ao conectar com o servidor: ${error.message}`);
     } finally {
       setLoadingReplacement(false);
     }
@@ -100,7 +103,8 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(`${data.message}`);
+        showToast("error", data.message || "Erro ao carregar dashboard.");
+        return;
       }
       setDashboardData({
         totalProductsStock: data.totalProductsStock ?? 0,
@@ -115,7 +119,8 @@ export default function Dashboard() {
         recentSuppliers: data.recentSuppliers ?? 0,
       });
     } catch (error) {
-      alert(`Erro ao carregar dashboard ${error.message}`);
+      console.error("Erro ao carregar dashboard:", error);
+      showToast("error", `Erro ao carregar dashboard: ${error.message}`);
     } finally {
       setLoadingDashboard(false);
     }
