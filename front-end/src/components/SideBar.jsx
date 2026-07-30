@@ -3,135 +3,158 @@ import Logo from "../assets/sidebarLogo.png";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import LogoutModal from "./LogoutModal";
 
 function SideBar() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [userData, setUserData] = useState({
-        nome_usuario: "",
-        nome_empresa: ""
-    });
+  const [userData, setUserData] = useState({
+    nome_usuario: "",
+    nome_empresa: "",
+  });
 
-    useEffect(() => {
-        async function fetchUserData() {
-            const token = localStorage.getItem("token");
+  const [logoutModalAberto, setLogoutModalAberto] = useState(false);
 
-            if (!token) return;
+  useEffect(() => {
+    async function fetchUserData() {
+      const token = localStorage.getItem("token");
 
-            try {
-                const response = await fetch("http://localhost:3001/api/perfil/get-user", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+      if (!token) return;
 
-                if (!response.ok) return;
+      try {
+        const response = await fetch(
+          "http://localhost:3001/api/perfil/get-user",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
 
-                const data = await response.json();
+        if (!response.ok) return;
 
-                setUserData({
-                    nome_usuario: data.nome_usuario || "",
-                    nome_empresa: data.nome_empresa || ""
-                });
-            } catch (error) {
-                console.error("Erro ao carregar usuário da sidebar:", error.message);
-            }
-        }
+        const data = await response.json();
 
-        fetchUserData();
-    }, []);
-
-    function handleLogout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
-        navigate("/");
+        setUserData({
+          nome_usuario: data.nome_usuario || "",
+          nome_empresa: data.nome_empresa || "",
+        });
+      } catch (error) {
+        console.error("Erro ao carregar usuário da sidebar:", error.message);
+      }
     }
 
-    function getIniciais(nome) {
-        if (!nome) return "US";
-        const partes = nome.trim().split(" ");
-        if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
-        return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
-    }
+    fetchUserData();
+  }, []);
 
-    return (
-        <>
-            <section className="sidebar">
-                <div className="sidebar-top">
-                    <div className="sidebar-brand">
-                        <img src={Logo} alt="Logo StockControl" className="sidebar-logo" />
-                    </div>
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/");
+  }
 
-                    <hr />
+  function getIniciais(nome) {
+    if (!nome) return "US";
+    const partes = nome.trim().split(" ");
+    if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  }
 
-                    <nav className="sidebar-nav">
-                        <p className="sidebar-title">MENU</p>
+  return (
+    <>
+      <section className="sidebar">
+        <div className="sidebar-top">
+          <div className="sidebar-brand">
+            <img src={Logo} alt="Logo StockControl" className="sidebar-logo" />
+          </div>
 
-                        <NavLink
-                            to="/dashboard"
-                            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-                        >
-                            <img
-                                src="https://img.icons8.com/?size=20&id=sUJRwjfnGwbJ&format=png&color=ffffff"
-                                alt="Ícone do Dashboard"
-                                className="nav-icon"
-                            />
-                            <span>Dashboard</span>
-                        </NavLink>
+          <hr />
 
-                        <NavLink
-                            to="/stock"
-                            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-                        >
-                            <img
-                                src="https://img.icons8.com/?size=20&id=106914&format=png&color=ffffff"
-                                alt="Ícone do Estoque"
-                                className="nav-icon"
-                            />
-                            <span>Estoque</span>
-                        </NavLink>
+          <nav className="sidebar-nav">
+            <p className="sidebar-title">MENU</p>
 
-                        <NavLink
-                            to="/sale"
-                            className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-                        >
-                            <img
-                                src="https://img.icons8.com/?size=20&id=cIzsD9VTMVOe&format=png&color=ffffff"
-                                alt="Ícone de Vendas"
-                                className="nav-icon"
-                            />
-                            <span>Vendas</span>
-                        </NavLink>
-                    </nav>
-                </div>
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <img
+                src="https://img.icons8.com/?size=20&id=sUJRwjfnGwbJ&format=png&color=ffffff"
+                alt="Ícone do Dashboard"
+                className="nav-icon"
+              />
+              <span>Dashboard</span>
+            </NavLink>
 
-                <div className="sidebar-bottom">
-                    <hr />
+            <NavLink
+              to="/stock"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <img
+                src="https://img.icons8.com/?size=20&id=106914&format=png&color=ffffff"
+                alt="Ícone do Estoque"
+                className="nav-icon"
+              />
+              <span>Estoque</span>
+            </NavLink>
 
-                    <div className="logout-wrapper">
-                        <img
-                            src="https://img.icons8.com/?size=20&id=22112&format=png&color=ffffff"
-                            alt="Ícone de sair"
-                            className="logout-icon"
-                        />
-                        <button className="logout-button" onClick={handleLogout}>
-                            Sair
-                        </button>
-                    </div>
+            <NavLink
+              to="/sale"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <img
+                src="https://img.icons8.com/?size=20&id=cIzsD9VTMVOe&format=png&color=ffffff"
+                alt="Ícone de Vendas"
+                className="nav-icon"
+              />
+              <span>Vendas</span>
+            </NavLink>
+          </nav>
+        </div>
 
-                    <button className="user-box" onClick={() => navigate("/profile")}>
-                        <div className="user-avatar">{getIniciais(userData.nome_usuario)}</div>
-                        <div className="user-info">
-                            <strong>{userData.nome_usuario || "Usuário"}</strong>
-                            <span>{userData.nome_empresa || "Empresa"}</span>
-                        </div>
-                    </button>
-                </div>
-            </section>
-        </>
-    );
+        <div className="sidebar-bottom">
+          <hr />
+
+          <div className="logout-wrapper">
+            <img
+              src="https://img.icons8.com/?size=20&id=22112&format=png&color=ffffff"
+              alt="Ícone de sair"
+              className="logout-icon"
+            />
+            <button
+              className="logout-button"
+              onClick={() => setLogoutModalAberto(true)}
+            >
+              Sair
+            </button>
+          </div>
+
+          <button className="user-box" onClick={() => navigate("/profile")}>
+            <div className="user-avatar">
+              {getIniciais(userData.nome_usuario)}
+            </div>
+            <div className="user-info">
+              <strong>{userData.nome_usuario || "Usuário"}</strong>
+              <span>{userData.nome_empresa || "Empresa"}</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <LogoutModal
+        isOpen={logoutModalAberto}
+        onClose={() => setLogoutModalAberto(false)}
+        onConfirm={handleLogout}
+      />
+    </>
+  );
 }
 
 export default SideBar;
