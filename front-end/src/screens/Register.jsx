@@ -2,13 +2,12 @@ import "./Register.css";
 import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { useToast } from "../components/ToastContext";
 
 export default function Cadastro() {
   const navigate = useNavigate();
 
-  // function handleRegister() {
-  //   navigate("/dashboard");
-  // }
+  const { toast } = useToast();
 
   const [formData, setFormData] = useState({
     nome_usuario: "",
@@ -82,31 +81,31 @@ export default function Cadastro() {
     e.preventDefault();
 
     // if (!validarDocumento(formData.cpfCnpj)) {
-    //   alert("Por favor, insira um CPF ou CNPJ válido.");
+    //   toast.warning("Por favor, insira um CPF ou CNPJ válido.");
     //   return;
     // }
 
-    try{
+    try {
       const response = await fetch("http://localhost:3001/api/auth/register", {
-        method : "POST",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json()
+      const data = await response.json();
 
-      if(!response.ok) {
-        alert(`${data.message}`)
+      if (!response.ok) {
+        toast.error(data.message || "Erro ao cadastrar usuário.");
         return;
       }
 
-      alert("Cadastro realizado com sucesso!")
-      navigate("/")
-    } catch (error){
-      console.error(error)
-      alert(`Erro ao conectar com o servidor: ${error.message}` )
+      toast.success("Cadastro realizado com sucesso!");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      toast.error(`Erro ao conectar com o servidor: ${error.message}`);
     }
   };
 
@@ -204,7 +203,7 @@ export default function Cadastro() {
                   type="text"
                   id="bairro"
                   placeholder="Nome do bairro"
-                  onChange={handleChange} 
+                  onChange={handleChange}
                 />
               </div>
 
@@ -222,69 +221,69 @@ export default function Cadastro() {
             </div>
 
             <div className="estado-pais-linha">
-            <div className="estado">
-            <label htmlFor="estado">Estado</label>
-            <select className="input" id="estado" onChange={handleChange}>
-              <option value="">Selecione o estado</option>
-              <option value="AC">Acre</option>
-              <option value="AL">Alagoas</option>
-              <option value="AP">Amapá</option>
-              <option value="AM">Amazonas</option>
-              <option value="BA">Bahia</option>
-              <option value="CE">Ceará</option>
-              <option value="DF">Distrito Federal</option>
-              <option value="ES">Espírito Santo</option>
-              <option value="GO">Goiás</option>
-              <option value="MA">Maranhão</option>
-              <option value="MT">Mato Grosso</option>
-              <option value="MS">Mato Grosso do Sul</option>
-              <option value="MG">Minas Gerais</option>
-              <option value="PA">Pará</option>
-              <option value="PB">Paraíba</option>
-              <option value="PR">Paraná</option>
-              <option value="PE">Pernambuco</option>
-              <option value="PI">Piauí</option>
-              <option value="RJ">Rio de Janeiro</option>
-              <option value="RN">Rio Grande do Norte</option>
-              <option value="RS">Rio Grande do Sul</option>
-              <option value="RO">Rondônia</option>
-              <option value="RR">Roraima</option>
-              <option value="SC">Santa Catarina</option>
-              <option value="SP">São Paulo</option>
-              <option value="SE">Sergipe</option>
-              <option value="TO">Tocantins</option>
-            </select>
-            </div>
+              <div className="estado">
+                <label htmlFor="estado">Estado</label>
+                <select className="input" id="estado" onChange={handleChange}>
+                  <option value="">Selecione o estado</option>
+                  <option value="AC">Acre</option>
+                  <option value="AL">Alagoas</option>
+                  <option value="AP">Amapá</option>
+                  <option value="AM">Amazonas</option>
+                  <option value="BA">Bahia</option>
+                  <option value="CE">Ceará</option>
+                  <option value="DF">Distrito Federal</option>
+                  <option value="ES">Espírito Santo</option>
+                  <option value="GO">Goiás</option>
+                  <option value="MA">Maranhão</option>
+                  <option value="MT">Mato Grosso</option>
+                  <option value="MS">Mato Grosso do Sul</option>
+                  <option value="MG">Minas Gerais</option>
+                  <option value="PA">Pará</option>
+                  <option value="PB">Paraíba</option>
+                  <option value="PR">Paraná</option>
+                  <option value="PE">Pernambuco</option>
+                  <option value="PI">Piauí</option>
+                  <option value="RJ">Rio de Janeiro</option>
+                  <option value="RN">Rio Grande do Norte</option>
+                  <option value="RS">Rio Grande do Sul</option>
+                  <option value="RO">Rondônia</option>
+                  <option value="RR">Roraima</option>
+                  <option value="SC">Santa Catarina</option>
+                  <option value="SP">São Paulo</option>
+                  <option value="SE">Sergipe</option>
+                  <option value="TO">Tocantins</option>
+                </select>
+              </div>
 
-            <div className="pais-campo">
-            <label htmlFor="pais">País</label>
-            <select className="input" id="pais" onChange={handleChange}>
-              <option value="">Selecione o país</option>
-              <option value="AR">Argentina</option>
-              <option value="BO">Bolívia</option>
-              <option value="BR">Brasil</option>
-              <option value="CA">Canadá</option>
-              <option value="CL">Chile</option>
-              <option value="CO">Colômbia</option>
-              <option value="CR">Costa Rica</option>
-              <option value="CU">Cuba</option>
-              <option value="DO">República Dominicana</option>
-              <option value="EC">Equador</option>
-              <option value="SV">El Salvador</option>
-              <option value="GT">Guatemala</option>
-              <option value="HN">Honduras</option>
-              <option value="JM">Jamaica</option>
-              <option value="MX">México</option>
-              <option value="NI">Nicarágua</option>
-              <option value="PA">Panamá</option>
-              <option value="PY">Paraguai</option>
-              <option value="PE">Peru</option>
-              <option value="PR">Porto Rico</option>
-              <option value="UY">Uruguai</option>
-              <option value="US">Estados Unidos</option>
-              <option value="VE">Venezuela</option>
-            </select>
-            </div>
+              <div className="pais-campo">
+                <label htmlFor="pais">País</label>
+                <select className="input" id="pais" onChange={handleChange}>
+                  <option value="">Selecione o país</option>
+                  <option value="AR">Argentina</option>
+                  <option value="BO">Bolívia</option>
+                  <option value="BR">Brasil</option>
+                  <option value="CA">Canadá</option>
+                  <option value="CL">Chile</option>
+                  <option value="CO">Colômbia</option>
+                  <option value="CR">Costa Rica</option>
+                  <option value="CU">Cuba</option>
+                  <option value="DO">República Dominicana</option>
+                  <option value="EC">Equador</option>
+                  <option value="SV">El Salvador</option>
+                  <option value="GT">Guatemala</option>
+                  <option value="HN">Honduras</option>
+                  <option value="JM">Jamaica</option>
+                  <option value="MX">México</option>
+                  <option value="NI">Nicarágua</option>
+                  <option value="PA">Panamá</option>
+                  <option value="PY">Paraguai</option>
+                  <option value="PE">Peru</option>
+                  <option value="PR">Porto Rico</option>
+                  <option value="UY">Uruguai</option>
+                  <option value="US">Estados Unidos</option>
+                  <option value="VE">Venezuela</option>
+                </select>
+              </div>
             </div>
 
             <label htmlFor="cidade">Cidade</label>
@@ -318,13 +317,11 @@ export default function Cadastro() {
               onChange={handleChange}
             />
 
-            <button
-              type="submit"
-              className="register-button"
-            >
+            <button type="submit" className="register-button">
               <span>Cadastrar</span>
               <span className="arrow">→</span>
             </button>
+
 
             <p className="register-text">
               Já é cadastrado? <a href="/">Faça login</a>

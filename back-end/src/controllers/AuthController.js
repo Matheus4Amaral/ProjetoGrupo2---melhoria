@@ -67,8 +67,10 @@ export const register = async (req, res) => {
     senha
   } = req.body;
 
+  const client = await pool.connect();
+
   try {
-    const userExists = await pool.query(
+    const userExists = await client.query(
       'SELECT id_usuario FROM public.usuario WHERE email = $1',
       [email]
     );
@@ -79,7 +81,9 @@ export const register = async (req, res) => {
 
     const hashedSenha = await bcrypt.hash(senha, 10);
 
-    const result = await pool.query(
+    await client.query('BEGIN');
+
+    const result = await client.query(
       `INSERT INTO public.usuario (
         nome_usuario,
         nome_empresa,
@@ -114,15 +118,29 @@ export const register = async (req, res) => {
       ]
     );
 
+    const usuario = result.rows[0];
+
+    // Cria um estoque padrão automaticamente para o novo usuário
+    await client.query(
+      `INSERT INTO public.estoque (descricao, id_usuario)
+       VALUES ($1, $2)`,
+      ['Estoque Principal', usuario.id_usuario]
+    );
+
+    await client.query('COMMIT');
+
     return res.status(201).json({
       message: "Usuário cadastrado com sucesso",
-      usuario: result.rows[0]
+      usuario
     });
   } catch (error) {
+    await client.query('ROLLBACK');
     return res.status(500).json({
       message: 'Erro ao cadastrar usuário',
       error: error.message
     });
+  } finally {
+    client.release();
   }
 };
 

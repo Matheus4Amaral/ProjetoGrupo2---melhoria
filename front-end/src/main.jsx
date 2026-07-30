@@ -11,6 +11,7 @@ import Sale from './screens/Sale.jsx'
 import Profile from './screens/Profile.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import { ToastProvider } from './components/ToastContext.jsx'
 
 const router = createBrowserRouter([
   {
@@ -60,7 +61,9 @@ const router = createBrowserRouter([
 ])
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <RouterProvider router={router} />
+   <StrictMode>
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
   </StrictMode>,
 )
