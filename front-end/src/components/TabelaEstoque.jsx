@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import "./TabelaEstoque.css";
+import { useToast } from "./ToastContext";
+import ConfirmModal from "./ConfirmModal";
 
 export default function TabelaEstoque({
   produtos = [],
@@ -9,10 +11,13 @@ export default function TabelaEstoque({
   onViewItem = () => {},
   onEditItem = () => {}
 }) {
+  const { toast } = useToast();
   const [busca, setBusca] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemParaExcluir, setItemParaExcluir] = useState(null);
 
   const formatarMoeda = (valor) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -59,25 +64,31 @@ export default function TabelaEstoque({
     return "status-normal";
   };
 
-  async function handleDelete(item) {
+  function handleDelete(item) {
     if (!estoqueAtual?.id_estoque) {
-      alert("Estoque não identificado para exclusão.");
+      toast.error("Estoque não identificado para exclusão.");
       return;
     }
 
-    const confirmar = window.confirm(
-      `Deseja realmente remover o produto "${item.nome_produto}" do estoque?`
-    );
+    setItemParaExcluir(item);
+    setIsConfirmOpen(true);
+  }
 
-    if (!confirmar) return;
+  function handleCloseConfirmModal() {
+    setIsConfirmOpen(false);
+    setItemParaExcluir(null);
+  }
+
+  async function handleConfirmDelete() {
+    if (!itemParaExcluir || !estoqueAtual?.id_estoque) return;
 
     const token = localStorage.getItem("token");
 
     try {
-      setDeletingId(item.id_produto);
+      setDeletingId(itemParaExcluir.id_produto);
 
       const response = await fetch(
-        `http://localhost:3001/api/stock/${estoqueAtual.id_estoque}/produtos/${item.id_produto}`,
+        `http://localhost:3001/api/stock/${estoqueAtual.id_estoque}/produtos/${itemParaExcluir.id_produto}`,
         {
           method: "DELETE",
           headers: {
@@ -90,14 +101,15 @@ export default function TabelaEstoque({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Erro ao excluir produto do estoque.");
+        toast.error(data.message || "Erro ao excluir produto do estoque.");
         return;
       }
 
-      alert("Produto removido do estoque com sucesso.");
+      toast.success("Produto removido do estoque com sucesso.");
+      handleCloseConfirmModal();
       await onReload();
     } catch (error) {
-      alert(`Erro ao excluir produto: ${error.message}`);
+      toast.error(`Erro ao excluir produto: ${error.message}`);
     } finally {
       setDeletingId(null);
     }
@@ -245,6 +257,22 @@ export default function TabelaEstoque({
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={handleCloseConfirmModal}
+        onConfirm={handleConfirmDelete}
+        loading={deletingId === itemParaExcluir?.id_produto}
+        title="Remover produto"
+        message={
+          itemParaExcluir
+            ? `Deseja realmente remover o produto "${itemParaExcluir.nome_produto}" do estoque?`
+            : ""
+        }
+        subtext="Essa ação não poderá ser desfeita."
+        confirmLabel="Remover"
+        confirmingLabel="Removendo..."
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./ItemModal.css";
 import RegisterSupplier from "./RegisterSupplier";
+import { useToast } from "./ToastContext";
 
 export default function ItemModal({
   isOpen,
@@ -10,6 +11,7 @@ export default function ItemModal({
   mode = "create",
   itemSelecionado = null
 }) {
+  const { toast } = useToast();
   const initialFormData = {
     nome_produto: "",
     categoria: "",
@@ -155,22 +157,22 @@ export default function ItemModal({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado.");
+      toast.error("Usuário não autenticado.");
       return;
     }
 
     if (!formData.nome_produto.trim()) {
-      alert("Informe o nome do produto.");
+      toast.warning("Informe o nome do produto.");
       return;
     }
 
     if (!formData.categoria.trim()) {
-      alert("Informe a categoria.");
+      toast.warning("Informe a categoria.");
       return;
     }
 
     if (!estoqueAtual?.id_estoque && isCreateMode) {
-      alert("Nenhum estoque encontrado.");
+      toast.error("Nenhum estoque encontrado.");
       return;
     }
 
@@ -213,14 +215,14 @@ export default function ItemModal({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
+        toast.error(
           data.message ||
             (isEditMode ? "Erro ao atualizar produto." : "Erro ao cadastrar produto.")
         );
         return;
       }
 
-      alert(isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
+      toast.success(isEditMode ? "Produto atualizado com sucesso." : "Produto cadastrado com sucesso.");
 
       if (onSuccess) {
         await onSuccess();
@@ -228,7 +230,7 @@ export default function ItemModal({
 
       onClose();
     } catch (error) {
-      alert(`Erro ao salvar item: ${error.message}`);
+      toast.error(`Erro ao salvar item: ${error.message}`);
     } finally {
       setSaving(false);
     }

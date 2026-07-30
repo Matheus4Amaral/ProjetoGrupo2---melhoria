@@ -5,8 +5,10 @@ import Header from "../components/Header";
 import CardResumo from "../components/CardResumo";
 import TabelaEstoque from "../components/TabelaEstoque";
 import ItemModal from "../components/ItemModal";
+import { useToast } from "../components/ToastContext";
 
 export default function Stock() {
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -43,7 +45,7 @@ export default function Stock() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Usuário não autenticado");
+      toast.error("Usuário não autenticado");
       return;
     }
 
@@ -61,7 +63,7 @@ export default function Stock() {
       const dataEstoques = await responseEstoques.json();
 
       if (!responseEstoques.ok) {
-        alert(dataEstoques.message || "Erro ao carregar estoques");
+        toast.error(dataEstoques.message || "Erro ao carregar estoques");
         return;
       }
 
@@ -92,13 +94,13 @@ export default function Stock() {
       const dataProdutos = await responseProdutos.json();
 
       if (!responseProdutos.ok) {
-        alert(dataProdutos.message || "Erro ao carregar produtos");
+        toast.error(dataProdutos.message || "Erro ao carregar produtos");
         return;
       }
 
       setProdutos(Array.isArray(dataProdutos.produtos) ? dataProdutos.produtos : []);
     } catch (error) {
-      alert(`Erro ao carregar estoque: ${error.message}`);
+      toast.error(`Erro ao carregar estoque: ${error.message}`);
     } finally {
       setLoading(false);
     }
