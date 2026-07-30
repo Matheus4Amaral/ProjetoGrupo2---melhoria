@@ -34,6 +34,8 @@ export default function Cadastro() {
   const [loading, setLoading] = useState(false);
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+  const [resultadosCep, setResultadosCep] = useState([]);
+  const [buscandoCep, setBuscandoCep] = useState(false);
 
   //Limpa o erro do campo assim que o usuário começa a corrigir
   const limparErro = (campo) => {
@@ -65,6 +67,128 @@ export default function Cadastro() {
     setFormData((prev) => ({ ...prev, cep: valor }));
     limparErro("cep");
   };
+
+  // Função para buscar o endereço com base no CEP
+  const buscarCep = async () => {
+  const cepNumerico = removeNonNumeric(formData.cep);
+
+  if (!cepNumerico) {
+    return;
+  }
+
+  if (cepNumerico.length !== 8) {
+    setErros((prev) => ({
+      ...prev,
+      cep: "O CEP deve ter 8 dígitos.",
+    }));
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `https://viacep.com.br/ws/${cepNumerico}/json/`
+    );
+
+    if (!response.ok) {
+      throw new Error("Erro ao consultar o CEP.");
+    }
+
+    const data = await response.json();
+
+    if (data.erro) {
+      setErros((prev) => ({
+        ...prev,
+        cep: "CEP não encontrado.",
+      }));
+
+      toast.error("CEP não encontrado.");
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      rua: data.logradouro || "",
+      bairro: data.bairro || "",
+      cidade: data.localidade || "",
+      estado: data.uf || "",
+      pais: "BR",
+    }));
+
+    limparErro("cep");
+  } catch (error) {
+    console.error("Erro ao consultar CEP:", error);
+    toast.error("Não foi possível consultar o CEP.");
+  }
+};
+
+// Função para buscar o CEP com base no endereço
+const buscarCepPorEndereco = async () => {
+  const { estado, cidade, rua } = formData;
+
+  if (!estado) {
+    toast.error("Selecione o estado.");
+    return;
+  }
+
+  if (cidade.trim().length < 3) {
+    toast.error("Digite pelo menos 3 caracteres da cidade.");
+    return;
+  }
+
+  if (rua.trim().length < 3) {
+    toast.error("Digite pelo menos 3 caracteres da rua.");
+    return;
+  }
+
+  try {
+    setBuscandoCep(true);
+    setResultadosCep([]);
+
+    const uf = encodeURIComponent(estado);
+    const cidadeFormatada = encodeURIComponent(cidade.trim());
+    const ruaFormatada = encodeURIComponent(rua.trim());
+
+    const response = await fetch(
+      `https://viacep.com.br/ws/${uf}/${cidadeFormatada}/${ruaFormatada}/json/`
+    );
+
+    if (!response.ok) {
+      throw new Error("Erro ao consultar o endereço.");
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      toast.error("Nenhum CEP encontrado para esse endereço.");
+      return;
+    }
+
+    setResultadosCep(data);
+  } catch (error) {
+    console.error("Erro ao buscar CEP pelo endereço:", error);
+    toast.error("Não foi possível buscar o CEP.");
+  } finally {
+    setBuscandoCep(false);
+  }
+};
+
+// Função para selecionar um endereço da lista de resultados
+const selecionarEndereco = (endereco) => {
+  setFormData((prev) => ({
+    ...prev,
+    cep: endereco.cep || "",
+    rua: endereco.logradouro || prev.rua,
+    bairro: endereco.bairro || "",
+    cidade: endereco.localidade || prev.cidade,
+    estado: endereco.uf || prev.estado,
+    pais: "BR",
+  }));
+
+  setResultadosCep([]);
+  limparErro("cep");
+
+  toast.success("CEP selecionado!");
+};
 
   const handleTelefoneChange = (e) => {
     let valor = removeNonNumeric(e.target.value);
@@ -286,6 +410,7 @@ export default function Cadastro() {
                   type="text"
                   id="rua"
                   placeholder="Nome da rua"
+                  value={formData.rua}
                   onChange={handleChange}
                 />
               </div>
@@ -297,6 +422,7 @@ export default function Cadastro() {
                   type="text"
                   id="numero"
                   placeholder="Número"
+                  value={formData.numero}
                   onChange={handleChange}
                 />
               </div>
@@ -310,6 +436,7 @@ export default function Cadastro() {
                   type="text"
                   id="bairro"
                   placeholder="Nome do bairro"
+                  value={formData.bairro}
                   onChange={handleChange} 
                 />
               </div>
@@ -323,10 +450,45 @@ export default function Cadastro() {
                   placeholder="00000-000"
                   value={formData.cep}
                   onChange={handleCepChange}
+      //Busca o endereço automaticamente quando o usuário sai do campo
+                  onBlur={buscarCep}
                   maxLength={9}
                   aria-invalid={erros.cep ? "true" : "false"}
                 />
                 {erros.cep && <span className="field-error">{erros.cep}</span>}
+
+              { /* Botão para buscar o CEP pelo endereço */ }
+                  <button
+                    type="button"
+                    className="buscar-cep-link"
+                    onClick={buscarCepPorEndereco}
+                    disabled={buscandoCep}
+                  >
+                    {buscandoCep
+                      ? "Buscando..."
+                      : "🔍 Não sabe o CEP? Buscar pelo endereço"}
+                  </button>
+
+                  {resultadosCep.length > 0 && (
+                    <div className="resultados-cep">
+                      <p>Selecione o endereço:</p>
+                      //
+                      {resultadosCep.map((endereco, index) => (
+                        <button
+                          type="button"
+                          key={`${endereco.cep}-${index}`}
+                          className="resultado-cep-item"
+                          onClick={() => selecionarEndereco(endereco)}
+                        >
+                          <strong>{endereco.cep}</strong>
+                          <br />
+                          {endereco.logradouro}
+                          {endereco.bairro ? ` - ${endereco.bairro}` : ""}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
               </div>
             </div>
 
@@ -334,7 +496,12 @@ export default function Cadastro() {
             <div className="estado">
             <label htmlFor="estado">Estado</label>
             {formData.pais==="" || formData.pais ==="BR"?(
-            <select className="input" id="estado" onChange={handleChange}>
+            <select
+              className="input"
+              id="estado"
+              value={formData.estado}
+              onChange={handleChange}
+            >
               <option value="">Selecione o estado</option>
               <option value="AC">Acre</option>
               <option value="AL">Alagoas</option>

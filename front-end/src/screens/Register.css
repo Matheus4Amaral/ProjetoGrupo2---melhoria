@@ -296,3 +296,61 @@
     font-size: 15px;
   }
 }
+.buscar-cep-link {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #0f5b46;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.buscar-cep-link:hover {
+  color: #083f30;
+}
+
+.buscar-cep-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resultados-cep {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #cfdad5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.resultados-cep p {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.resultado-cep-item {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d9e2de;
+  border-radius: 6px;
+  background: #f8fbfa;
+  color: #1f2925;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.resultado-cep-item:hover {
+  border-color: #0f5b46;
+  background: #eef7f3;
+}
