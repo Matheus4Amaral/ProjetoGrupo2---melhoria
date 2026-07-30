@@ -1,5 +1,6 @@
 import pool from '../config/database.js'
 import jwt from 'jsonwebtoken'
+import { handleControllerError } from '../utils/apiErrors.js'
 
 export const getDashboardData = async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -118,10 +119,7 @@ export const getDashboardData = async (req, res) => {
       recentSuppliers: recentSuppliers.rows[0].total
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao buscar dados do dashboard',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar dados do dashboard');
   }
 };
 
@@ -164,9 +162,6 @@ export const replacement = async (req, res) => {
       data: result.rows[0],
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Erro ao realizar reposição",
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao realizar reposição');
   }
 };

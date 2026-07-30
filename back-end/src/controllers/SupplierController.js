@@ -1,5 +1,6 @@
 import pool from '../config/database.js';
 import jwt from 'jsonwebtoken';
+import { handleControllerError } from '../utils/apiErrors.js';
 
 const getUserFromToken = (req) => {
   const authHeader = req.headers.authorization;
@@ -64,7 +65,10 @@ export const createSupplier = async (req, res) => {
     );
 
     if (supplierExists.rows.length > 0) {
-      return res.status(400).json({ message: 'Fornecedor já existe' });
+      return res.status(409).json({
+        message: 'Fornecedor já existe',
+        code: 'SUPPLIER_ALREADY_EXISTS'
+      });
     }
 
     const cepNumero = parseCep(cep);
@@ -108,19 +112,7 @@ export const createSupplier = async (req, res) => {
       fornecedor: result.rows[0]
     });
   } catch (error) {
-    console.error('Erro real ao cadastrar fornecedor:', error);
-
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        message: 'Token inválido ou expirado',
-        error: error.message
-      });
-    }
-
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao cadastrar fornecedor',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao cadastrar fornecedor');
   }
 };
 
@@ -157,19 +149,7 @@ export const getSuppliers = async (req, res) => {
       fornecedores: result.rows
     });
   } catch (error) {
-    console.error('Erro ao listar fornecedores:', error);
-
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        message: 'Token inválido ou expirado',
-        error: error.message
-      });
-    }
-
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao listar fornecedores',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao listar fornecedores');
   }
 };
 
@@ -197,19 +177,7 @@ export const getSupplierById = async (req, res) => {
       fornecedor: result.rows[0]
     });
   } catch (error) {
-    console.error('Erro ao buscar fornecedor:', error);
-
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        message: 'Token inválido ou expirado',
-        error: error.message
-      });
-    }
-
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao buscar fornecedor',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar fornecedor');
   }
 };
 
@@ -294,19 +262,7 @@ export const updateSupplier = async (req, res) => {
       fornecedor: result.rows[0]
     });
   } catch (error) {
-    console.error('Erro ao atualizar fornecedor:', error);
-
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        message: 'Token inválido ou expirado',
-        error: error.message
-      });
-    }
-
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao atualizar fornecedor',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao atualizar fornecedor');
   }
 };
 
@@ -334,18 +290,6 @@ export const deleteSupplier = async (req, res) => {
       fornecedor: result.rows[0]
     });
   } catch (error) {
-    console.error('Erro ao excluir fornecedor:', error);
-
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        message: 'Token inválido ou expirado',
-        error: error.message
-      });
-    }
-
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao excluir fornecedor',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao excluir fornecedor');
   }
 };

@@ -1,6 +1,7 @@
 import pool from '../config/database.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { handleControllerError } from '../utils/apiErrors.js'
 
 export const getUser = async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -44,10 +45,7 @@ export const getUser = async (req, res) => {
 
     return res.status(200).json(result.rows[0]);
   } catch (error) {
-    return res.status(401).json({
-      message: "Token inválido ou expirado",
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar dados do perfil');
   }
 };
 
@@ -99,10 +97,7 @@ export const updateUser = async (req, res) => {
       usuario: result.rows[0]
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Erro ao atualizar perfil",
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao atualizar perfil');
   }
 };
 
@@ -168,9 +163,6 @@ export const changePassword = async (req, res) => {
       message: "Senha alterada com sucesso"
     });
   } catch (error) {
-    return res.status(401).json({
-      message: "Token inválido ou expirado",
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao alterar senha');
   }
 };

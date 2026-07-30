@@ -1,11 +1,14 @@
 import pool from '../config/database.js';
 import jwt from 'jsonwebtoken';
+import { handleControllerError } from '../utils/apiErrors.js';
 
 const getUserFromToken = (req) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new Error('Token não fornecido ou mal formatado');
+    const error = new Error('Token não fornecido ou mal formatado');
+    error.statusCode = 401;
+    throw error;
   }
 
   const token = authHeader.split(' ')[1];
@@ -35,10 +38,7 @@ export const createStock = async (req, res) => {
       estoque: result.rows[0]
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao criar estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao criar estoque');
   }
 };
 
@@ -60,10 +60,7 @@ export const getStock = async (req, res) => {
       estoques: result.rows
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao listar estoques',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao listar estoques');
   }
 };
 
@@ -90,10 +87,7 @@ export const getStockByNome = async (req, res) => {
       estoques: result.rows
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao buscar estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar estoque');
   }
 };
 
@@ -149,10 +143,7 @@ export const getStockByStatus = async (req, res) => {
       estoques: result.rows
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao buscar estoques por status',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar estoques por status');
   }
 };
 
@@ -178,10 +169,7 @@ export const getStockById = async (req, res) => {
       estoque: result.rows[0]
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao buscar estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar estoque');
   }
 };
 
@@ -223,10 +211,7 @@ export const updateStock = async (req, res) => {
       estoque: result.rows[0]
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao atualizar estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao atualizar estoque');
   }
 };
 
@@ -275,10 +260,7 @@ export const getStockProducts = async (req, res) => {
       produtos: result.rows
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao buscar produtos do estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar produtos do estoque');
   }
 };
 
@@ -318,7 +300,10 @@ export const addProductToStock = async (req, res) => {
     );
 
     if (checkProduct.rows.length > 0) {
-      return res.status(400).json({ message: 'Produto já existe neste estoque' });
+      return res.status(409).json({
+        message: 'Produto já existe neste estoque',
+        code: 'PRODUCT_ALREADY_EXISTS'
+      });
     }
 
     await pool.query(
@@ -330,10 +315,7 @@ export const addProductToStock = async (req, res) => {
 
     return res.status(201).json({ message: 'Produto adicionado ao estoque com sucesso' });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao adicionar produto ao estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao adicionar produto ao estoque');
   }
 };
 
@@ -387,10 +369,7 @@ export const updateProductInStock = async (req, res) => {
       produto: result.rows[0]
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao atualizar produto no estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao atualizar produto no estoque');
   }
 };
 
@@ -416,10 +395,7 @@ export const deleteStock = async (req, res) => {
       estoque_excluido: result.rows[0]
     });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao excluir estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao excluir estoque');
   }
 };
 
@@ -451,9 +427,6 @@ export const removeProductFromStock = async (req, res) => {
 
     return res.status(200).json({ message: 'Produto removido do estoque com sucesso' });
   } catch (error) {
-    return res.status(500).json({
-      message: 'Erro ao remover produto do estoque',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao remover produto do estoque');
   }
 };

@@ -1,0 +1,87 @@
+paths:
+  /api/supplier:
+    get:
+      tags: [Fornecedores]
+      summary: Lista os fornecedores do usuário
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Fornecedores retornados }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    post:
+      tags: [Fornecedores]
+      summary: Cadastra um fornecedor
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome_fornecedor]
+              properties:
+                nome_fornecedor: { type: string }
+                email: { type: string, format: email }
+                telefone: { type: string }
+                cep: { type: string }
+      responses:
+        '201': { description: Fornecedor cadastrado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/supplier/{id}:
+    get:
+      tags: [Fornecedores]
+      summary: Busca um fornecedor
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Fornecedor encontrado }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    put:
+      tags: [Fornecedores]
+      summary: Atualiza um fornecedor
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome_fornecedor: { type: string }
+                email: { type: string, format: email }
+                telefone: { type: string }
+                cep: { type: string }
+      responses:
+        '200': { description: Fornecedor atualizado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    delete:
+      tags: [Fornecedores]
+      summary: Exclui um fornecedor
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Fornecedor excluído }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }

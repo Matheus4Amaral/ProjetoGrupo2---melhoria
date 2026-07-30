@@ -1,0 +1,187 @@
+paths:
+  /api/stock:
+    get:
+      tags: [Estoques]
+      summary: Lista os estoques do usuário
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Estoques retornados }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    post:
+      tags: [Estoques]
+      summary: Cria um estoque
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [descricao]
+              properties:
+                descricao: { type: string }
+      responses:
+        '201': { description: Estoque criado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/stock/status/{status}:
+    get:
+      tags: [Estoques]
+      summary: Lista estoques por status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: [critico, alerta, regular]
+      responses:
+        '200': { description: Estoques encontrados }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/stock/{id}:
+    get:
+      tags: [Estoques]
+      summary: Busca um estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Estoque encontrado }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    put:
+      tags: [Estoques]
+      summary: Atualiza um estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                descricao: { type: string }
+      responses:
+        '200': { description: Estoque atualizado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    delete:
+      tags: [Estoques]
+      summary: Exclui um estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Estoque excluído }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/stock/{id}/produtos:
+    get:
+      tags: [Estoques]
+      summary: Lista os produtos de um estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Produtos retornados }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/stock/{id_estoque}/produtos:
+    post:
+      tags: [Estoques]
+      summary: Adiciona um produto ao estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id_estoque
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_produto, quantidade_estoque_total, quantidade_estoque_atual]
+              properties:
+                id_produto: { type: integer }
+                quantidade_estoque_total: { type: number }
+                quantidade_estoque_atual: { type: number }
+      responses:
+        '201': { description: Produto adicionado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/stock/{id_estoque}/produtos/{id_produto}:
+    put:
+      tags: [Estoques]
+      summary: Atualiza a quantidade de um produto no estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id_estoque
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: id_produto
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantidade_estoque_total: { type: number }
+                quantidade_estoque_atual: { type: number }
+      responses:
+        '200': { description: Quantidade atualizada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    delete:
+      tags: [Estoques]
+      summary: Remove um produto do estoque
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id_estoque
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: id_produto
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Produto removido }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }

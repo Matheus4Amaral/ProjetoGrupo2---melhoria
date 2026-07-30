@@ -1,0 +1,55 @@
+paths:
+  /api/perfil/get-user:
+    get:
+      tags: [Perfil]
+      summary: Obtém o perfil autenticado
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Perfil encontrado }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/perfil/update-user:
+    put:
+      tags: [Perfil]
+      summary: Atualiza o perfil autenticado
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome_usuario: { type: string }
+                nome_empresa: { type: string }
+                cpf_cnpj: { type: string }
+                telefone: { type: string }
+                cep: { type: string }
+      responses:
+        '200': { description: Perfil atualizado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/perfil/change-password:
+    put:
+      tags: [Perfil]
+      summary: Altera a senha do usuário autenticado
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [senhaAtual, novaSenha]
+              properties:
+                senhaAtual: { type: string, format: password }
+                novaSenha: { type: string, format: password }
+      responses:
+        '200': { description: Senha alterada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }

@@ -424,7 +424,10 @@ export const addProductToSale = async (req, res) => {
     )
 
     if (checkProduct.rows.length > 0) {
-      return res.status(400).json({ message: 'Produto já existe nesta venda. Use incrementar/decrementar.' })
+      return res.status(409).json({
+        message: 'Produto já existe nesta venda. Use incrementar/decrementar.',
+        code: 'PRODUCT_ALREADY_EXISTS'
+      })
     }
 
     await client.query(

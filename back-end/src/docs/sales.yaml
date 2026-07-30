@@ -1,0 +1,197 @@
+paths:
+  /api/sales:
+    get:
+      tags: [Vendas]
+      summary: Lista as vendas
+      responses:
+        '200': { description: Vendas retornadas }
+        '500': { $ref: '#/components/responses/InternalError' }
+    post:
+      tags: [Vendas]
+      summary: Cria uma venda com produtos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [produtos]
+              properties:
+                descricao: { type: string }
+                data_venda: { type: string, format: date }
+                valor_venda: { type: number }
+                id_usuario: { type: integer }
+                cliente_id: { type: integer, nullable: true }
+                produtos:
+                  type: array
+                  items:
+                    type: object
+                    required: [id_produto, quantidade_venda]
+                    properties:
+                      id_produto: { type: integer }
+                      quantidade_venda: { type: number }
+      responses:
+        '201': { description: Venda criada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/sales/{id}:
+    get:
+      tags: [Vendas]
+      summary: Busca uma venda
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Venda encontrada }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    put:
+      tags: [Vendas]
+      summary: Atualiza uma venda e seus produtos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                descricao: { type: string }
+                data_venda: { type: string, format: date }
+                valor_venda: { type: number }
+                produtos:
+                  type: array
+                  items:
+                    type: object
+                    required: [id_produto, quantidade_venda]
+                    properties:
+                      id_produto: { type: integer }
+                      quantidade_venda: { type: number }
+      responses:
+        '200': { description: Venda atualizada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    delete:
+      tags: [Vendas]
+      summary: Exclui uma venda
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Venda excluída }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/sales/{id_venda}/produto:
+    post:
+      tags: [Vendas]
+      summary: Adiciona um produto à venda
+      parameters:
+        - in: path
+          name: id_venda
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_produto, quantidade_venda]
+              properties:
+                id_produto: { type: integer }
+                quantidade_venda: { type: number }
+      responses:
+        '201': { description: Produto adicionado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/sales/{id_venda}/produto/{id_produto}:
+    put:
+      tags: [Vendas]
+      summary: Define a quantidade de um produto na venda
+      parameters:
+        - in: path
+          name: id_venda
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: id_produto
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantidade_venda]
+              properties:
+                quantidade_venda: { type: number }
+      responses:
+        '200': { description: Quantidade atualizada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/sales/{id_venda}/produto/{id_produto}/incrementar:
+    patch:
+      tags: [Vendas]
+      summary: Incrementa a quantidade de um produto na venda
+      parameters:
+        - in: path
+          name: id_venda
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: id_produto
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantidade]
+              properties:
+                quantidade: { type: number }
+      responses:
+        '200': { description: Quantidade incrementada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /api/sales/{id_venda}/produto/{id_produto}/decrementar:
+    patch:
+      tags: [Vendas]
+      summary: Decrementa a quantidade de um produto na venda
+      parameters:
+        - in: path
+          name: id_venda
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: id_produto
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantidade]
+              properties:
+                quantidade: { type: number }
+      responses:
+        '200': { description: Quantidade decrementada }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalError' }

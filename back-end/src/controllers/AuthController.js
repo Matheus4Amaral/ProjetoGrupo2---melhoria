@@ -2,6 +2,9 @@ import pool from '../config/database.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
+export const normalizeCep = (cep) =>
+  cep ? String(cep).replace(/\D/g, '') : null;
+
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -88,10 +91,13 @@ export const register = async (req, res) => {
     return res.status(400).json({ message: 'A senha é obrigatória e deve ter no mínimo 6 caracteres' });
   }
 
-  const cepNormalizado = cep ? String(cep).replace(/\D/g, '') : null;
+  const cepNormalizado = normalizeCep(cep);
 
   if (cepNormalizado && cepNormalizado.length !== 8) {
-    return res.status(400).json({ message: 'O CEP deve conter 8 dígitos' });
+    return res.status(400).json({
+      message: 'CEP inválido. Informe um CEP com 8 dígitos.',
+      code: 'INVALID_CEP'
+    });
   }
 
   try {
@@ -101,7 +107,10 @@ export const register = async (req, res) => {
     );
 
     if (userExists.rows.length > 0) {
-      return res.status(400).json({ message: 'Usuário já existe' });
+      return res.status(409).json({
+        message: 'Usuário já existe',
+        code: 'USER_ALREADY_EXISTS'
+      });
     }
 
     const hashedSenha = await bcrypt.hash(senha, 10);

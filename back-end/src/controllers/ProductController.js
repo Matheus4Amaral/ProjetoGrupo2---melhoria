@@ -1,5 +1,6 @@
 import pool from '../config/database.js';
 import jwt from 'jsonwebtoken';
+import { handleControllerError } from '../utils/apiErrors.js';
 
 const getUserFromToken = (req) => {
   const authHeader = req.headers.authorization;
@@ -140,17 +141,7 @@ export const createProduct = async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK');
 
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        message: 'Token inválido ou expirado',
-        error: error.message
-      });
-    }
-
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao cadastrar produto',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao cadastrar produto');
   } finally {
     client.release();
   }
@@ -185,10 +176,7 @@ export const getProducts = async (req, res) => {
 
     return res.status(200).json(result.rows);
   } catch (error) {
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao buscar produtos',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar produtos');
   }
 };
 
@@ -217,10 +205,7 @@ export const getProductById = async (req, res) => {
 
     return res.status(200).json(result.rows[0]);
   } catch (error) {
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao buscar produto',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar produto');
   }
 };
 
@@ -250,10 +235,7 @@ export const getProductByName = async (req, res) => {
 
     return res.status(200).json(result.rows);
   } catch (error) {
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao buscar produtos por nome',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao buscar produtos por nome');
   }
 };
 
@@ -368,10 +350,7 @@ export const updateProduct = async (req, res) => {
       produto: result.rows[0]
     });
   } catch (error) {
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao atualizar produto',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao atualizar produto');
   }
 };
 
@@ -396,9 +375,6 @@ export const deleteProduct = async (req, res) => {
 
     return res.status(200).json({ message: 'Produto excluído com sucesso' });
   } catch (error) {
-    return res.status(error.statusCode || 500).json({
-      message: 'Erro ao excluir produto',
-      error: error.message
-    });
+    return handleControllerError(res, error, 'Erro ao excluir produto');
   }
 };
