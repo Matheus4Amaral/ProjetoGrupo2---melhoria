@@ -99,11 +99,13 @@ export default function Profile() {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem("usuario", JSON.stringify(data.usuario));
+        window.dispatchEvent(new Event("profile-updated"));
         setMensagem({ tipo: "sucesso", texto: "Perfil atualizado com sucesso!" });
       } else {
         setMensagem({ tipo: "erro", texto: data.message || "Erro ao atualizar perfil." });
       }
-    } catch (err) {
+    } catch {
       setMensagem({ tipo: "erro", texto: "Erro ao conectar com o servidor." });
     }
   };
