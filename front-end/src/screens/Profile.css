@@ -4,10 +4,15 @@
 }
 
 .profile-panel {
-  margin-left: 260px;
+  margin-left: 220px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease;
+}
+
+body.sidebar-collapsed .profile-panel {
+  margin-left: 90px;
 }
 
 .profile-main {

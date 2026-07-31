@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;          /* melhor que 15% pra sidebar fixa */
+  width: 220px;
   height: 100vh;
   overflow-y: auto;
 
@@ -11,7 +11,13 @@
   flex-direction: column;
   justify-content: space-between;
   background-color: #104f3a;
-  padding: 80px 56px;
+  padding: 40px 20px;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 90px;
+  padding: 40px 16px;
 }
 
 .sidebar-top {
@@ -23,10 +29,38 @@
 .sidebar-brand {
   width: 100%;
   padding-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+}
+
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-toggle-btn img {
+  width: 20px;
+  height: 20px;
 }
 
 .sidebar-logo {
-  width: 170px;
+  width: 140px;
   height: auto;
   display: block;
 }
@@ -42,6 +76,11 @@
   color: rgba(255, 255, 255, 0.75);
   margin-bottom: 14px;
   letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-title {
+  display: none;
 }
 
 .nav-item {
@@ -58,8 +97,18 @@
   margin-bottom: 10px;
   cursor: pointer;
   font-size: 15px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, justify-content 0.3s ease;
   text-decoration: none;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar.collapsed .nav-item span {
+  display: none;
 }
 
 .nav-icon {
@@ -89,6 +138,15 @@
   gap: 8px;
   width: 100%;
   margin-bottom: 18px;
+  white-space: nowrap;
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sidebar.collapsed .logout-wrapper {
+  justify-content: center;
 }
 
 .logout-icon {
@@ -107,6 +165,10 @@
   font: inherit;
 }
 
+.sidebar.collapsed .logout-button {
+  display: none;
+}
+
 .user-box {
   width: 100%;
   display: flex;
@@ -115,7 +177,11 @@
   appearance: none;
   border: none;
   background: none;
-  cursor:pointer;
+  cursor: pointer;
+}
+
+.sidebar.collapsed .user-box {
+  justify-content: center;
 }
 
 .user-avatar {
@@ -135,11 +201,19 @@
 .user-info {
   display: flex;
   flex-direction: column;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+}
+
+.sidebar.collapsed .user-info {
+  display: none;
 }
 
 .user-info strong {
   font-size: 14px;
   color: #ffffff;
+  display: block;
 }
 
 .user-info span {

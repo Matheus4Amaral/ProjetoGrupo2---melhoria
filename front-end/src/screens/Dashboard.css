@@ -10,12 +10,18 @@
 }
 
 .dashboard-panel {
-  margin-left: 260px;
-  width: calc(100% - 260px);
+  margin-left: 220px;
+  width: calc(100% - 220px);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #E6F2EC;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+body.sidebar-collapsed .dashboard-panel {
+  margin-left: 90px;
+  width: calc(100% - 90px);
 }
 
 .dashboard-informations {
@@ -273,7 +279,11 @@ hr {
   }
 
   .dashboard-panel {
-    width: calc(100% - 260px);
+    width: calc(100% - 220px);
+  }
+
+  body.sidebar-collapsed .dashboard-panel {
+    width: calc(100% - 90px);
   }
 
   .stock-card {

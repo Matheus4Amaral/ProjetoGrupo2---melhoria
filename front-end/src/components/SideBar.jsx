@@ -15,6 +15,20 @@ function SideBar() {
     });
 
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    
+    const [isCompressed, setIsCompressed] = useState(() => {
+        const saved = localStorage.getItem("sidebar-compressed");
+        return saved === "true";
+    });
+
+    useEffect(() => {
+        localStorage.setItem("sidebar-compressed", isCompressed);
+        if (isCompressed) {
+            document.body.classList.add("sidebar-collapsed");
+        } else {
+            document.body.classList.remove("sidebar-collapsed");
+        }
+    }, [isCompressed]);
 
     useEffect(() => {
         async function fetchUserData() {
@@ -64,12 +78,31 @@ function SideBar() {
         return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
     }
 
+    function getNomeFormatado(nome) {
+        if (!nome) return ["Usuário"];
+        const partes = nome.trim().split(" ");
+        if (partes.length === 1) return [partes[0]];
+        return [partes[0], partes[partes.length - 1]];
+    }
+
     return (
         <>
-            <section className="sidebar">
+            <section className={`sidebar ${isCompressed ? "collapsed" : ""}`}>
                 <div className="sidebar-top">
                     <div className="sidebar-brand">
-                        <img src={Logo} alt="Logo StockControl" className="sidebar-logo" />
+                        {!isCompressed && (
+                            <img src={Logo} alt="Logo StockControl" className="sidebar-logo" />
+                        )}
+                        <button 
+                            className="sidebar-toggle-btn" 
+                            onClick={() => setIsCompressed(!isCompressed)}
+                            title={isCompressed ? "Expandir" : "Recolher"}
+                        >
+                            <img 
+                                src="https://img.icons8.com/?size=20&id=59832&format=png&color=ffffff" 
+                                alt="Toggle Menu" 
+                            />
+                        </button>
                     </div>
 
                     <hr />
@@ -118,24 +151,28 @@ function SideBar() {
                 <div className="sidebar-bottom">
                     <hr />
 
-                    <div className="logout-wrapper">
+                    <button 
+                        className="logout-wrapper"
+                        onClick={() => setShowLogoutModal(true)}
+                    >
                         <img
                             src="https://img.icons8.com/?size=20&id=22112&format=png&color=ffffff"
                             alt="Ícone de sair"
                             className="logout-icon"
                         />
-                        <button
-                            className="logout-button"
-                            onClick={() => setShowLogoutModal(true)}
-                        >
+                        <span className="logout-button">
                             Sair
-                        </button>
-                    </div>
+                        </span>
+                    </button>
 
                     <button className="user-box" onClick={() => navigate("/profile")}>
                         <div className="user-avatar">{getIniciais(userData.nome_usuario)}</div>
                         <div className="user-info">
-                            <strong>{userData.nome_usuario || "Usuário"}</strong>
+                            <div className="user-name-lines">
+                                {getNomeFormatado(userData.nome_usuario).map((linha, index) => (
+                                    <strong key={index}>{linha}</strong>
+                                ))}
+                            </div>
                             <span>{userData.nome_empresa || "Empresa"}</span>
                         </div>
                     </button>
