@@ -9,10 +9,23 @@
   border-bottom: 1px solid #e9efea;
 }
 
+.header-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .page-title {
   font-size: 20px;
   font-weight: 700;
   color: #184d3b;
+  margin: 0;
+}
+
+.header-greeting {
+  font-size: 14px;
+  color: #5A7A6A;
+  font-weight: 500;
+  margin-top: 4px;
 }
 
 .header-button {
