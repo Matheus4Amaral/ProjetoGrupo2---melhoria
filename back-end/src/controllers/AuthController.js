@@ -1,5 +1,7 @@
 import pool from "../config/database.js";
+import { enviarEmail } from '../Services/emailService.js';
 import bcrypt from "bcrypt";
+import crypto from 'crypto';
 import jwt from "jsonwebtoken";
 
 export const login = async (req, res) => {
@@ -124,7 +126,63 @@ export const register = async (req, res) => {
     });
   }
 };
+export const ResetPassword = async (req, res) => {
+  const { token, novaSenha } = req.body;
 
+  if (!token || !novaSenha) {
+    return res.status(400).json({
+      message: "Token e nova senha são obrigatórios."
+    });
+  }
+  try {
+
+    const result = await pool.query(
+      `
+      SELECT id_usuario
+      FROM public.usuario
+      WHERE reset_password_token = $1
+      AND reset_password_expires > NOW()
+      `,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        message: "Token inválido ou expirado."
+      });
+    }
+
+    const usuario = result.rows[0];
+
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+
+    await pool.query(
+      `
+      UPDATE public.usuario
+      SET
+        senha = $1,
+        reset_password_token = NULL,
+        reset_password_expires = NULL
+      WHERE id_usuario = $2
+      `,
+      [senhaHash, usuario.id_usuario]
+    );
+
+    return res.status(200).json({
+      message: "Senha alterada com sucesso."
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Erro ao alterar senha.",
+      error: error.message
+    });
+
+  }
+};
 export const getUser = async (req, res) => {
   try {
     const userId = req.user?.id_usuario || req.user?.id || req.query.id_usuario;
@@ -222,26 +280,148 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ message: "O e-mail é obrigatório." });
+    return res.status(400).json({
+      message: "O e-mail é obrigatório."
+    });
   }
 
   try {
-    const userCheck = await pool.query(
-      "SELECT id_usuario FROM public.usuario WHERE email = $1",
-      [email],
+
+    // Procura o usuário
+    const result = await pool.query(
+      `SELECT id_usuario, email
+       FROM public.usuario
+       WHERE email = $1`,
+      [email]
     );
 
-    if (userCheck.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "E-mail não cadastrado no sistema." });
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "E-mail não encontrado."
+      });
     }
 
-    return res.status(200).json({ message: "E-mail encontrado com sucesso!" });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Erro ao processar solicitação.",
-      error: error.message,
+    const usuario = result.rows[0];
+
+    // Gera um token aleatório
+    const token = crypto.randomBytes(32).toString("hex");
+
+    // Expira em 30 minutos
+    const expires = new Date(Date.now() + 30 * 60 * 1000);
+
+    // Salva no banco
+    await pool.query(
+      `UPDATE public.usuario
+       SET reset_password_token = $1,
+           reset_password_expires = $2
+       WHERE id_usuario = $3`,
+      [token, expires, usuario.id_usuario]
+    );
+
+    // Link enviado por e-mail
+    const link = `http://localhost:5173/reset-password/${token}`;
+
+    // Envia o e-mail
+    await enviarEmail(
+      usuario.email,
+      "Recuperação de senha",
+      `
+      <h2>Recuperação de senha</h2>
+
+      <p>Você solicitou uma recuperação de senha.</p>
+
+      <p>
+        Clique no botão abaixo para criar uma nova senha:
+      </p>
+
+      <a
+        href="${link}"
+        style="
+          background:#16a34a;
+          color:white;
+          padding:12px 20px;
+          text-decoration:none;
+          border-radius:8px;
+        "
+      >
+        Redefinir senha
+      </a>
+
+      <p>Este link expira em 30 minutos.</p>
+      `
+    );
+
+    return res.status(200).json({
+      message: "E-mail de recuperação enviado com sucesso."
     });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Erro ao enviar recuperação.",
+      error: error.message
+    });
+
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, novaSenha } = req.body;
+
+  if (!token || !novaSenha) {
+    return res.status(400).json({
+      message: "Token e nova senha são obrigatórios."
+    });
+  }
+
+  try {
+
+    const result = await pool.query(
+      `
+      SELECT id_usuario
+      FROM public.usuario
+      WHERE reset_password_token = $1
+      AND reset_password_expires > NOW()
+      `,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        message: "Token inválido ou expirado."
+      });
+    }
+
+    const usuario = result.rows[0];
+
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+
+    await pool.query(
+      `
+      UPDATE public.usuario
+      SET
+        senha = $1,
+        reset_password_token = NULL,
+        reset_password_expires = NULL
+      WHERE id_usuario = $2
+      `,
+      [senhaHash, usuario.id_usuario]
+    );
+
+    return res.status(200).json({
+      message: "Senha alterada com sucesso."
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Erro ao alterar senha.",
+      error: error.message
+    });
+
   }
 };
