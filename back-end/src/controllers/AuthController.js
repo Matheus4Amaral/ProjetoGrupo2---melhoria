@@ -1,5 +1,5 @@
 import pool from "../config/database.js";
-import { enviarEmail } from "../Services/emailService.js";
+import { enviarEmail } from "../services/emailService.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
