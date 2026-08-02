@@ -17,7 +17,7 @@ export default function Stock() {
   const [produtosPorEstoque, setProdutosPorEstoque] = useState({});
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   const handleNovoItem = () => {
     setModalMode("create");

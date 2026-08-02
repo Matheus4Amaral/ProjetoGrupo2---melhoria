@@ -22,7 +22,7 @@ export default function Profile() {
 
   const [loading, setLoading] = useState(true);
   const [mensagem, setMensagem] = useState({ tipo: "", texto: "" });
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   useEffect(() => {
     async function fetchUserData() {

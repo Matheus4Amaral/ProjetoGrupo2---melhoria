@@ -23,7 +23,7 @@ export default function ItemModal({
     lote: "",
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   const { showToast } = useToast();
   const [formData, setFormData] = useState(initialFormData);

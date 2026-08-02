@@ -8,7 +8,7 @@ import { useToast } from "../context/ToastProvider";
 export default function Login() {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   // function handleLogin(){
   //   navigate('/dashboard')

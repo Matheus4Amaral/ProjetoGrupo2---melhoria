@@ -32,7 +32,7 @@ export default function Dashboard() {
   const { showToast } = useToast();
 
   const token = localStorage.getItem("token");
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   async function handleReplacement({
     id_produto,

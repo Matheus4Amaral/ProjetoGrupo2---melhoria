@@ -15,7 +15,7 @@ export default function TabelaEstoque({
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("");
   const [deletingId, setDeletingId] = useState(null);
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   const formatarMoeda = (valor) => {
     return new Intl.NumberFormat("pt-BR", {

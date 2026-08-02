@@ -14,7 +14,7 @@ export default function Cadastro() {
   const [loadingCep, setLoadingCep] = useState(false);
 
   const numeroInputRef = useRef(null);
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   const buscarEnderecoPorCep = async (cepLimpo) => {
     if (cepLimpo.length !== 8) return;

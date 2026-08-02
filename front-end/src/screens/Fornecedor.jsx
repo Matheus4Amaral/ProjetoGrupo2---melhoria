@@ -26,7 +26,7 @@ export default function Fornecedor() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   // Referência para mover o foco para o campo de número
   const numeroInputRef = useRef(null);
