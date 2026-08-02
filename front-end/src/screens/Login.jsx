@@ -8,6 +8,7 @@ import { useToast } from "../context/ToastProvider";
 export default function Login() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // function handleLogin(){
   //   navigate('/dashboard')
@@ -27,7 +28,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

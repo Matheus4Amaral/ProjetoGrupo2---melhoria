@@ -15,6 +15,7 @@ export default function TabelaEstoque({
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
   const [statusSelecionado, setStatusSelecionado] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const formatarMoeda = (valor) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -83,7 +84,7 @@ export default function TabelaEstoque({
       setDeletingId(item.id_produto);
 
       const responseDeleteStock = await fetch(
-        `http://localhost:3001/api/stock/${item.id_estoque}`,
+        `${API_URL}/api/stock/${item.id_estoque}`,
         {
           method: "DELETE",
           headers: {

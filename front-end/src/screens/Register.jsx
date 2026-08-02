@@ -14,6 +14,7 @@ export default function Cadastro() {
   const [loadingCep, setLoadingCep] = useState(false);
 
   const numeroInputRef = useRef(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const buscarEnderecoPorCep = async (cepLimpo) => {
     if (cepLimpo.length !== 8) return;
@@ -139,7 +140,7 @@ export default function Cadastro() {
     // }
 
     try {
-      const response = await fetch("http://localhost:3001/api/auth/register", {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

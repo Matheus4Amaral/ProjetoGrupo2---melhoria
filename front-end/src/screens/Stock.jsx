@@ -17,6 +17,7 @@ export default function Stock() {
   const [produtosPorEstoque, setProdutosPorEstoque] = useState({});
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleNovoItem = () => {
     setModalMode("create");
@@ -55,7 +56,7 @@ export default function Stock() {
       setLoading(true);
       setErrorMessage(null);
 
-      const responseEstoques = await fetch("http://localhost:3001/api/stock", {
+      const responseEstoques = await fetch(`${API_URL}/api/stock`, {
         method: "GET",
         signal,
         headers: {
@@ -86,7 +87,7 @@ export default function Stock() {
 
       for (const estoque of listaEstoques) {
         const responseProdutos = await fetch(
-          `http://localhost:3001/api/stock/${estoque.id_estoque}/produtos`,
+          `${API_URL}/api/stock/${estoque.id_estoque}/produtos`,
           {
             method: "GET",
             signal,

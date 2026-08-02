@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 function SideBar() {
   const navigate = useNavigate();
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const [userData, setUserData] = useState({
     nome_usuario: "",
     nome_empresa: "",
@@ -20,7 +20,7 @@ function SideBar() {
 
       try {
         const response = await fetch(
-          "http://localhost:3001/api/perfil/get-user",
+          `${API_URL}/api/perfil/get-user`,
           {
             method: "GET",
             headers: {

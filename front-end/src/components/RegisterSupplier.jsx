@@ -19,6 +19,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     tipo_pessoa: "",
   };
 
+  const API_URL = import.meta.env.VITE_API_URL;
   const [formData, setFormData] = useState(initialFormData);
   const [saving, setSaving] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
@@ -193,7 +194,7 @@ export default function RegisterSupplier({ isOpen, onClose, onSave }) {
     try {
       setSaving(true);
 
-      const response = await fetch("http://localhost:3001/api/supplier", {
+      const response = await fetch(`${API_URL}/api/supplier`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

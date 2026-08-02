@@ -22,6 +22,7 @@ export default function Profile() {
 
   const [loading, setLoading] = useState(true);
   const [mensagem, setMensagem] = useState({ tipo: "", texto: "" });
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     async function fetchUserData() {
@@ -38,7 +39,7 @@ export default function Profile() {
 
       try {
         const response = await fetch(
-          "http://localhost:3001/api/perfil/get-user",
+          `${API_URL}/api/perfil/get-user`,
           {
             method: "GET",
             headers: {
@@ -94,7 +95,7 @@ export default function Profile() {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/api/perfil/update-user",
+        `${API_URL}/api/perfil/update-user`,
         {
           method: "PUT",
           headers: {

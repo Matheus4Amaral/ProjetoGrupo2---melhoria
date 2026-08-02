@@ -23,6 +23,8 @@ export default function ItemModal({
     lote: "",
   };
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const { showToast } = useToast();
   const [formData, setFormData] = useState(initialFormData);
   const [fornecedores, setFornecedores] = useState([]);
@@ -52,7 +54,7 @@ export default function ItemModal({
       if (token) {
         try {
           setLoadingFornecedores(true);
-          const response = await fetch("http://localhost:3001/api/supplier", {
+          const response = await fetch(`${API_URL}/api/supplier`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -122,7 +124,7 @@ export default function ItemModal({
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/stock/product", {
+      const response = await fetch(`${API_URL}/api/stock/product`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -205,8 +207,8 @@ export default function ItemModal({
       setSaving(true);
 
       const url = isEditMode
-        ? `http://localhost:3001/api/products/${itemSelecionado.id_produto}`
-        : "http://localhost:3001/api/products";
+        ? `${API_URL}/api/products/${itemSelecionado.id_produto}`
+        : `${API_URL}/api/products`;
 
       const method = isEditMode ? "PUT" : "POST";
 

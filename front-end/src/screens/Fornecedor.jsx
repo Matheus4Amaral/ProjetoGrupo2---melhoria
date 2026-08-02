@@ -26,6 +26,7 @@ export default function Fornecedor() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Referência para mover o foco para o campo de número
   const numeroInputRef = useRef(null);
@@ -40,7 +41,7 @@ export default function Fornecedor() {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3001/api/supplier", {
+      const response = await fetch(`${API_URL}/api/supplier`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -226,7 +227,7 @@ export default function Fornecedor() {
     try {
       setSaving(true);
 
-      const response = await fetch("http://localhost:3001/api/supplier", {
+      const response = await fetch(`${API_URL}/api/supplier`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

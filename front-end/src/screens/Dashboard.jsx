@@ -32,6 +32,7 @@ export default function Dashboard() {
   const { showToast } = useToast();
 
   const token = localStorage.getItem("token");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   async function handleReplacement({
     id_produto,
@@ -42,7 +43,7 @@ export default function Dashboard() {
       setLoadingReplacement(true);
 
       const response = await fetch(
-        "http://localhost:3001/api/dashboard/replacement",
+        `${API_URL}/api/dashboard/replacement`,
         {
           method: "POST",
           headers: {
@@ -90,7 +91,7 @@ export default function Dashboard() {
       setLoadingDashboard(true);
 
       const response = await fetch(
-        "http://localhost:3001/api/dashboard/getDashboardData",
+        `${API_URL}/api/dashboard/getDashboardData`,
         {
           method: "GET",
           headers: {

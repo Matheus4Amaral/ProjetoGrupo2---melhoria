@@ -9,6 +9,7 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (screen === "loading") {
@@ -34,7 +35,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/api/auth/forgot-password",
+        `${API_URL}/api/auth/forgot-password`,
         {
           method: "POST",
           headers: {
