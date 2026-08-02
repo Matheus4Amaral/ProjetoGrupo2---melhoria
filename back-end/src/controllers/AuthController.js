@@ -1,7 +1,7 @@
 import pool from "../config/database.js";
-import { enviarEmail } from '../Services/emailService.js';
+import { enviarEmail } from "../Services/emailService.js";
 import bcrypt from "bcrypt";
-import crypto from 'crypto';
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 export const login = async (req, res) => {
@@ -131,11 +131,10 @@ export const ResetPassword = async (req, res) => {
 
   if (!token || !novaSenha) {
     return res.status(400).json({
-      message: "Token e nova senha são obrigatórios."
+      message: "Token e nova senha são obrigatórios.",
     });
   }
   try {
-
     const result = await pool.query(
       `
       SELECT id_usuario
@@ -143,12 +142,12 @@ export const ResetPassword = async (req, res) => {
       WHERE reset_password_token = $1
       AND reset_password_expires > NOW()
       `,
-      [token]
+      [token],
     );
 
     if (result.rows.length === 0) {
       return res.status(400).json({
-        message: "Token inválido ou expirado."
+        message: "Token inválido ou expirado.",
       });
     }
 
@@ -165,22 +164,19 @@ export const ResetPassword = async (req, res) => {
         reset_password_expires = NULL
       WHERE id_usuario = $2
       `,
-      [senhaHash, usuario.id_usuario]
+      [senhaHash, usuario.id_usuario],
     );
 
     return res.status(200).json({
-      message: "Senha alterada com sucesso."
+      message: "Senha alterada com sucesso.",
     });
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
       message: "Erro ao alterar senha.",
-      error: error.message
+      error: error.message,
     });
-
   }
 };
 export const getUser = async (req, res) => {
@@ -281,23 +277,22 @@ export const forgotPassword = async (req, res) => {
 
   if (!email) {
     return res.status(400).json({
-      message: "O e-mail é obrigatório."
+      message: "O e-mail é obrigatório.",
     });
   }
 
   try {
-
     // Procura o usuário
     const result = await pool.query(
       `SELECT id_usuario, email
        FROM public.usuario
        WHERE email = $1`,
-      [email]
+      [email],
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        message: "E-mail não encontrado."
+        message: "E-mail não encontrado.",
       });
     }
 
@@ -315,11 +310,11 @@ export const forgotPassword = async (req, res) => {
        SET reset_password_token = $1,
            reset_password_expires = $2
        WHERE id_usuario = $3`,
-      [token, expires, usuario.id_usuario]
+      [token, expires, usuario.id_usuario],
     );
 
     // Link enviado por e-mail
-    const link = `http://localhost:5173/reset-password/${token}`;
+    const link = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     // Envia o e-mail
     await enviarEmail(
@@ -348,22 +343,19 @@ export const forgotPassword = async (req, res) => {
       </a>
 
       <p>Este link expira em 30 minutos.</p>
-      `
+      `,
     );
 
     return res.status(200).json({
-      message: "E-mail de recuperação enviado com sucesso."
+      message: "E-mail de recuperação enviado com sucesso.",
     });
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
       message: "Erro ao enviar recuperação.",
-      error: error.message
+      error: error.message,
     });
-
   }
 };
 
@@ -372,12 +364,11 @@ export const resetPassword = async (req, res) => {
 
   if (!token || !novaSenha) {
     return res.status(400).json({
-      message: "Token e nova senha são obrigatórios."
+      message: "Token e nova senha são obrigatórios.",
     });
   }
 
   try {
-
     const result = await pool.query(
       `
       SELECT id_usuario
@@ -385,12 +376,12 @@ export const resetPassword = async (req, res) => {
       WHERE reset_password_token = $1
       AND reset_password_expires > NOW()
       `,
-      [token]
+      [token],
     );
 
     if (result.rows.length === 0) {
       return res.status(400).json({
-        message: "Token inválido ou expirado."
+        message: "Token inválido ou expirado.",
       });
     }
 
@@ -407,21 +398,18 @@ export const resetPassword = async (req, res) => {
         reset_password_expires = NULL
       WHERE id_usuario = $2
       `,
-      [senhaHash, usuario.id_usuario]
+      [senhaHash, usuario.id_usuario],
     );
 
     return res.status(200).json({
-      message: "Senha alterada com sucesso."
+      message: "Senha alterada com sucesso.",
     });
-
   } catch (error) {
-
     console.error(error);
 
     return res.status(500).json({
       message: "Erro ao alterar senha.",
-      error: error.message
+      error: error.message,
     });
-
   }
 };
