@@ -30,10 +30,10 @@ app.use("/api/supplier", SupplierRoutes);
 app.use("/api/perfil", PerfilRoutes);
 app.use('/api/email', EmailRoutes);
 
-app.use(express.static(path.join(__dirname, '../front-end/dist')));
+app.use(express.static(path.join(__dirname, "../../front-end/dist")));
 
 app.get("/{*splat}", (req, res) => {
-  res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
+  res.sendFile(path.join(__dirname, "../../front-end/dist/index.html"));
 });
 
 app.listen(PORT, () => {
