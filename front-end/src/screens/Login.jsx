@@ -36,10 +36,14 @@ export default function Login() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
 
       if (!response.ok) {
-        showToast("error", data.message || "Erro ao fazer login.");
+        showToast(
+          "error",
+          data.message || `Erro ${response.status} ao fazer login.`,
+        );
         return;
       }
 

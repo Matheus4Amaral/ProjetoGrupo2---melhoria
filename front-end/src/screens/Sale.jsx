@@ -3,7 +3,7 @@ import "./Sale.css";
 import SideBar from "../components/SideBar";
 import TabelaVendas from "../components/TabelaVendas";
 import Header from "../components/Header";
-import CardResumo from "../components/cardResumo";
+import CardResumo from "../components/CardResumo";
 import OrderModal from "../components/OrderModal";
 import { saleService } from "../services/saleService";
 
